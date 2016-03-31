@@ -17,6 +17,25 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.gifisan.nio.UniqueThread;
+import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientResponse;
+import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.jms.JMSException;
+import com.gifisan.nio.jms.Message;
+import com.gifisan.nio.jms.TextMessage;
+import com.gifisan.nio.jms.client.MessageConsumer;
+import com.gifisan.nio.jms.client.MessageProducer;
+import com.gifisan.nio.jms.client.impl.MessageConsumerImpl;
+import com.gifisan.nio.jms.client.impl.MessageProducerImpl;
+import com.gifisan.nio.server.Connector;
+import com.gifisan.nio.server.NIOConnector;
+
+import org.w3c.dom.Text;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -45,6 +64,25 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
     private boolean keyboardVisible;
     private WindowManager.LayoutParams windowLayoutParams;
 
+
+    /* ---------------------------------    ------------------------------*/
+    private ClientConnector connector = new ClientConnector("wkapp.wicp.net",11990);
+
+    private ClientSesssion request = null;
+
+    private ClientSesssion receiveSession = null;
+
+    private MessageConsumer messageConsumer = null;
+
+    private MessageProducer messageProducer = null;
+
+    private String THIS_PHONE = null;
+
+    private String FRIEND_PHONE = null;
+
+    private UniqueThread executor = new UniqueThread();
+
+    /* ---------------------------------    ------------------------------*/
 
     private EditText.OnKeyListener keyListener = new View.OnKeyListener() {
         @Override
@@ -134,7 +172,6 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
             }
         });
 
-
         emojiButton = (ImageView)findViewById(R.id.emojiButton);
 
         emojiButton.setOnClickListener(new View.OnClickListener() {
@@ -157,6 +194,64 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
         sizeNotifierRelativeLayout = (SizeNotifierRelativeLayout) findViewById(R.id.chat_layout);
         sizeNotifierRelativeLayout.delegate = this;
 
+        executor.start();
+
+          /*-------------------- receive message ----------------- */
+
+        final Thread receiveMsgThread = new Thread(new Runnable() {
+
+            public void run() {
+                ThreadUtil.sleep(3000);
+                for(;;){
+                    try {
+                        TextMessage _message = (TextMessage) messageConsumer.revice();
+                        String messageText = _message.getContent();
+                        final ChatMessage message = new ChatMessage();
+                        message.setMessageStatus(Status.SENT);
+                        message.setMessageText(messageText);
+                        message.setUserType(UserType.SELF);
+                        message.setMessageTime(new Date().getTime());
+                        chatMessages.add(message);
+
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            public void run() {
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    } catch (JMSException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MainActivity activity = MainActivity.this;
+                    connector.connect(true);
+                    activity.request = connector.getClientSession();
+                    ClientResponse response = request.request("TestGetPhoneNOServlet", null);
+                    activity.THIS_PHONE = response.getText();
+                    Debug.info("================================THIS_PHONE:"+activity.THIS_PHONE);
+                    response = request.request("TestGetPhoneNOServlet", null);
+                    activity.FRIEND_PHONE = response.getText();
+                    Debug.info("================================FRIEND_PHONE:"+activity.FRIEND_PHONE);
+                    activity.receiveSession = connector.getClientSession();
+                    activity.messageConsumer = new MessageConsumerImpl(receiveSession,activity.THIS_PHONE);
+                    activity.messageProducer = new MessageProducerImpl(request);
+
+                    activity.messageProducer.login("admin","admin100");
+                    activity.messageConsumer.login("admin","admin100");
+
+                    receiveMsgThread.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
     }
 
@@ -172,11 +267,24 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
         message.setMessageTime(new Date().getTime());
         chatMessages.add(message);
 
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                TextMessage _message = new TextMessage("mmm",MainActivity.this.FRIEND_PHONE,messageText);
+                try {
+                    messageProducer.offer(_message);
+                } catch (JMSException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         if(listAdapter!=null)
             listAdapter.notifyDataSetChanged();
 
         // Mark message as delivered after one second
 
+        /*
         final ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
 
         exec.schedule(new Runnable(){
@@ -200,7 +308,7 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
 
             }
         }, 1, TimeUnit.SECONDS);
-
+*/
     }
 
     private Activity getActivity()
