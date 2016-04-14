@@ -17,34 +17,21 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.gifisan.nio.UniqueThread;
-import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.jms.JMSException;
-import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.TextMessage;
 import com.gifisan.nio.jms.client.MessageConsumer;
 import com.gifisan.nio.jms.client.MessageProducer;
-import com.gifisan.nio.jms.client.impl.MessageConsumerImpl;
-import com.gifisan.nio.jms.client.impl.MessageProducerImpl;
-import com.gifisan.nio.server.Connector;
-import com.gifisan.nio.server.NIOConnector;
+import com.likemessage.common.LConstants;
+import com.likemessage.database.DBUtil;
+import com.likemessage.database.LMessage;
 
-import org.w3c.dom.Text;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 import in.co.madhur.chatbubblesdemo.model.ChatMessage;
-import in.co.madhur.chatbubblesdemo.model.Status;
-import in.co.madhur.chatbubblesdemo.model.UserType;
 import in.co.madhur.chatbubblesdemo.widgets.Emoji;
 import in.co.madhur.chatbubblesdemo.widgets.EmojiView;
 import in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout;
@@ -66,21 +53,6 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
 
 
     /* ---------------------------------    ------------------------------*/
-    private ClientConnector connector = new ClientConnector("wkapp.wicp.net",11990);
-
-    private ClientSesssion request = null;
-
-    private ClientSesssion receiveSession = null;
-
-    private MessageConsumer messageConsumer = null;
-
-    private MessageProducer messageProducer = null;
-
-    private String THIS_PHONE = null;
-
-    private String FRIEND_PHONE = null;
-
-    private UniqueThread executor = new UniqueThread();
 
     /* ---------------------------------    ------------------------------*/
 
@@ -97,7 +69,7 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
 
                 if(v==chatEditText1)
                 {
-                    sendMessage(editText.getText().toString(), UserType.OTHER);
+                    sendMessage(editText.getText().toString());
                 }
 
                 chatEditText1.setText("");
@@ -115,7 +87,7 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
 
             if(v==enterChatView1)
             {
-                sendMessage(chatEditText1.getText().toString(), UserType.OTHER);
+                sendMessage(chatEditText1.getText().toString());
             }
 
             chatEditText1.setText("");
@@ -181,7 +153,7 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
             }
         });
 
-         listAdapter = new ChatListAdapter(chatMessages, this);
+        listAdapter = new ChatListAdapter(chatMessages, this);
 
         chatListView.setAdapter(listAdapter);
 
@@ -194,28 +166,72 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
         sizeNotifierRelativeLayout = (SizeNotifierRelativeLayout) findViewById(R.id.chat_layout);
         sizeNotifierRelativeLayout.delegate = this;
 
-        executor.start();
+        loadMsg();
 
-          /*-------------------- receive message ----------------- */
+        receiveMsg();
+
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
+    }
+
+    private void loadMsg(){
+
+
+        List<LMessage> chats = DBUtil.getDbUtil().findChat(LConstants.FRIEND_PHONE);
+
+        for(LMessage lMessage:chats){
+
+            ChatMessage message = new ChatMessage();
+
+            message.setSend(lMessage.isSend() == 1);
+            message.setMessageText(lMessage.getMessage());
+            message.setMessageTime(lMessage.getMsgDate());
+            chatMessages.add(message);
+
+        }
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+                listAdapter.notifyDataSetChanged();
+
+                chatListView.setSelection(listAdapter.getCount() - 1);
+            }
+        });
+
+
+
+
+
+    }
+
+    private void receiveMsg(){
+        /*-------------------- receive message ----------------- */
 
         final Thread receiveMsgThread = new Thread(new Runnable() {
 
             public void run() {
-                ThreadUtil.sleep(3000);
+                DebugUtil.info("========================start init receive");
+                for (;!LConstants.initComplete;){
+                    ThreadUtil.sleep(3000);
+                }
+
+                DebugUtil.info("========================init complete");
                 for(;;){
                     try {
+                        MessageConsumer messageConsumer = LConstants.messageConsumer;
                         TextMessage _message = (TextMessage) messageConsumer.revice();
                         String messageText = _message.getContent();
                         final ChatMessage message = new ChatMessage();
-                        message.setMessageStatus(Status.SENT);
                         message.setMessageText(messageText);
-                        message.setUserType(UserType.SELF);
+                        message.setSend(false);
                         message.setMessageTime(new Date().getTime());
                         chatMessages.add(message);
+
+                        DBUtil.getDbUtil().saveMsg(message,LConstants.FRIEND_PHONE,LConstants.THIS_PHONE);
 
                         MainActivity.this.runOnUiThread(new Runnable() {
                             public void run() {
                                 listAdapter.notifyDataSetChanged();
+
+                                chatListView.setSelection(listAdapter.getCount() - 1);
                             }
                         });
                     } catch (JMSException e) {
@@ -225,62 +241,43 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
             }
         });
 
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    MainActivity activity = MainActivity.this;
-                    connector.connect(true);
-                    activity.request = connector.getClientSession();
-                    ClientResponse response = request.request("TestGetPhoneNOServlet", null);
-                    activity.THIS_PHONE = response.getText();
-                    Debug.info("================================THIS_PHONE:"+activity.THIS_PHONE);
-                    response = request.request("TestGetPhoneNOServlet", null);
-                    activity.FRIEND_PHONE = response.getText();
-                    Debug.info("================================FRIEND_PHONE:"+activity.FRIEND_PHONE);
-                    activity.receiveSession = connector.getClientSession();
-                    activity.messageConsumer = new MessageConsumerImpl(receiveSession,activity.THIS_PHONE);
-                    activity.messageProducer = new MessageProducerImpl(request);
+        receiveMsgThread.start();
 
-                    activity.messageProducer.login("admin","admin100");
-                    activity.messageConsumer.login("admin","admin100");
-
-                    receiveMsgThread.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
     }
 
-    private void sendMessage(final String messageText, final UserType userType)
+    private void sendMessage(final String messageText)
     {
         if(messageText.trim().length()==0)
             return;
 
         final ChatMessage message = new ChatMessage();
-        message.setMessageStatus(Status.SENT);
         message.setMessageText(messageText);
-        message.setUserType(userType);
+        message.setSend(true);
         message.setMessageTime(new Date().getTime());
         chatMessages.add(message);
 
-        executor.execute(new Runnable() {
+        final MessageProducer messageProducer = LConstants.messageProducer;
+
+
+
+        LConstants.uniqueThread.execute(new Runnable() {
             @Override
             public void run() {
-                TextMessage _message = new TextMessage("mmm",MainActivity.this.FRIEND_PHONE,messageText);
+                TextMessage _message = new TextMessage("mmm",LConstants.FRIEND_PHONE,messageText);
                 try {
-                    messageProducer.offer(_message);
+                    if(messageProducer.offer(_message)){
+                        DBUtil.getDbUtil().saveMsg(message,LConstants.THIS_PHONE,LConstants.FRIEND_PHONE);
+                    }
+
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
             }
         });
 
-        if(listAdapter!=null)
-            listAdapter.notifyDataSetChanged();
+        listAdapter.notifyDataSetChanged();
+
+        chatListView.setSelection(listAdapter.getCount() - 1);
 
         // Mark message as delivered after one second
 

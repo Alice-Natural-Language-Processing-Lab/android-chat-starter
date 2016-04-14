@@ -6,8 +6,8 @@ package in.co.madhur.chatbubblesdemo.model;
 public class ChatMessage {
 
     private String messageText;
-    private UserType userType;
-    private Status messageStatus;
+    private boolean isSend;
+    private long messageTime;
 
     public long getMessageTime() {
         return messageTime;
@@ -17,30 +17,21 @@ public class ChatMessage {
         this.messageTime = messageTime;
     }
 
-    private long messageTime;
-
     public void setMessageText(String messageText) {
         this.messageText = messageText;
     }
 
-    public void setUserType(UserType userType) {
-        this.userType = userType;
-    }
-
-    public void setMessageStatus(Status messageStatus) {
-        this.messageStatus = messageStatus;
-    }
 
     public String getMessageText() {
 
         return messageText;
     }
 
-    public UserType getUserType() {
-        return userType;
+    public boolean isSend() {
+        return isSend;
     }
 
-    public Status getMessageStatus() {
-        return messageStatus;
+    public void setSend(boolean send) {
+        isSend = send;
     }
 }
