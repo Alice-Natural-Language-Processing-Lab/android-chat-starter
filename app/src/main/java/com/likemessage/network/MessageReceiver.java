@@ -4,6 +4,7 @@ import android.widget.ListView;
 
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.TextMessage;
 import com.gifisan.nio.jms.client.MessageConsumer;
@@ -65,6 +66,9 @@ public class MessageReceiver extends  Thread{
             try {
                 MessageConsumer messageConsumer = LConstants.messageConsumer;
                 TextMessage _message = (TextMessage) messageConsumer.revice();
+
+                DebugUtil.info("========================MessageReceived:"+_message.toString());
+
                 String messageText = _message.getText();
                 final ChatMessage message = new ChatMessage();
                 message.setMessageText(messageText);

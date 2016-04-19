@@ -19,6 +19,7 @@ import android.widget.ListView;
 
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.TextMessage;
 import com.gifisan.nio.jms.client.MessageConsumer;
