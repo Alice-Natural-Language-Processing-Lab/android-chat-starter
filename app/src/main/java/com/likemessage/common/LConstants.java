@@ -30,7 +30,9 @@ public class LConstants {
 
     //    private ClientConnector connector = new ClientConnector("wkapp.wicp.net",11990);
 
-    private static ClientConnector connector = new ClientConnector("10.0.2.2",8300);
+//    private static ClientConnector connector = new ClientConnector("10.0.2.2",8300);
+
+    private static ClientConnector connector = new ClientConnector("192.168.1.67",8300);
 
     private static ClientSesssion request = null;
 
@@ -46,24 +48,19 @@ public class LConstants {
 
         if (inited.compareAndSet(false,true)){
 
+            PhoneInfo.init(context);
+
+            DBUtil.init(context);
+
             uniqueThread.start();
 
             uniqueThread.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        connector.connect(true);
-                        request = connector.getClientSession();
-                        receiveSession = connector.getClientSession();
-
-//                        ClientResponse response = request.request("TestGetPhoneNOServlet", null);
-//                        THIS_PHONE = response.getText();
 
                         THIS_PHONE = PhoneInfo.getPhoneInfo().getNativePhoneNumber();
                         DebugUtil.info("================================THIS_PHONE:"+THIS_PHONE);
-
-//                        response = request.request("TestGetPhoneNOServlet", null);
-//                        FRIEND_PHONE = response.getText();
 
                         if ("17087791610".equals(THIS_PHONE)){
                             FRIEND_PHONE = "18767480090";
@@ -72,6 +69,12 @@ public class LConstants {
                         }
 
                         DebugUtil.info("================================FRIEND_PHONE:"+FRIEND_PHONE);
+
+                        connector.connect(true);
+                        request = connector.getClientSession();
+                        receiveSession = connector.getClientSession();
+
+                        DebugUtil.info("================================Connected to server:"+connector.toString());
 
                         messageConsumer = new MessageConsumerImpl(receiveSession,THIS_PHONE);
                         messageProducer = new MessageProducerImpl(request);
@@ -82,13 +85,13 @@ public class LConstants {
 
                     } catch (Exception e) {
                         e.printStackTrace();
+
+                        DebugUtil.info("================================Can not connect to:"+connector.toString());
                     }
                 }
             });
 
-            PhoneInfo.init(context);
 
-            DBUtil.init(context);
         }
     }
 

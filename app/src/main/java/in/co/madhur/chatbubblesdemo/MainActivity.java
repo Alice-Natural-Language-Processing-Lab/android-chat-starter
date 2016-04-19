@@ -26,6 +26,7 @@ import com.gifisan.nio.jms.client.MessageProducer;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
 import com.likemessage.database.LMessage;
+import com.likemessage.network.MessageReceiver;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -196,53 +197,11 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
             }
         });
 
-
-
-
-
     }
 
     private void receiveMsg(){
         /*-------------------- receive message ----------------- */
-
-        final Thread receiveMsgThread = new Thread(new Runnable() {
-
-            public void run() {
-                DebugUtil.info("========================start init receive");
-                for (;!LConstants.initComplete;){
-                    ThreadUtil.sleep(3000);
-                }
-
-                DebugUtil.info("========================init complete");
-                for(;;){
-                    try {
-                        MessageConsumer messageConsumer = LConstants.messageConsumer;
-                        TextMessage _message = (TextMessage) messageConsumer.revice();
-                        String messageText = _message.getContent();
-                        final ChatMessage message = new ChatMessage();
-                        message.setMessageText(messageText);
-                        message.setSend(false);
-                        message.setMessageTime(new Date().getTime());
-                        chatMessages.add(message);
-
-                        DBUtil.getDbUtil().saveMsg(message,LConstants.FRIEND_PHONE,LConstants.THIS_PHONE);
-
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            public void run() {
-                                listAdapter.notifyDataSetChanged();
-
-                                chatListView.setSelection(listAdapter.getCount() - 1);
-                            }
-                        });
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        receiveMsgThread.start();
-
+        MessageReceiver.startReceive(this,chatMessages,listAdapter,chatListView);
     }
 
     private void sendMessage(final String messageText)
