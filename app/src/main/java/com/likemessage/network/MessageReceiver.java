@@ -2,6 +2,7 @@ package com.likemessage.network;
 
 import android.widget.ListView;
 
+import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.jms.ByteMessage;
@@ -65,11 +66,15 @@ public class MessageReceiver extends  Thread{
         for(;;){
             try {
                 MessageConsumer messageConsumer = LConstants.messageConsumer;
-                TextMessage _message = (TextMessage) messageConsumer.revice();
+//                TextMessage _message = (TextMessage) messageConsumer.revice();
+                ByteMessage _message = (ByteMessage) messageConsumer.revice();
 
                 DebugUtil.info("========================MessageReceived:"+_message.toString());
 
-                String messageText = _message.getText();
+//                String messageText = _message.getText();
+
+                String messageText = new String(_message.getByteArray(), Encoding.UTF8);
+
                 final ChatMessage message = new ChatMessage();
                 message.setMessageText(messageText);
                 message.setSend(false);

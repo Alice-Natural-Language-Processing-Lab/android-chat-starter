@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.jms.ByteMessage;
@@ -223,7 +224,8 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
         LConstants.uniqueThread.execute(new Runnable() {
             @Override
             public void run() {
-                TextMessage _message = new TextMessage("mmm",LConstants.FRIEND_PHONE,messageText);
+//                TextMessage _message = new TextMessage("mmm",LConstants.FRIEND_PHONE,messageText);
+                ByteMessage _message = new ByteMessage("mmm",LConstants.FRIEND_PHONE,"=====",messageText.getBytes(Encoding.UTF8));
                 try {
                     if(messageProducer.offer(_message)){
                         DBUtil.getDbUtil().saveMsg(message,LConstants.THIS_PHONE,LConstants.FRIEND_PHONE);
