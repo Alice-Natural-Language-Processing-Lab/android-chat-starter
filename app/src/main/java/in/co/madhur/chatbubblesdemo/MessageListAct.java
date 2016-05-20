@@ -11,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
 import com.likemessage.database.LMessage;
@@ -19,6 +21,7 @@ public class MessageListAct extends Activity {
 
 	private ListView mlv;
 	private MessageAdpter madpter;
+	private Logger logger = LoggerFactory.getLogger(MessageListAct.class);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +45,8 @@ public class MessageListAct extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		DebugUtil.info("========================"+requestCode);
-		DebugUtil.info("========================"+resultCode);
+		logger.info("========================"+requestCode);
+		logger.info("========================"+resultCode);
 	}
 
 	private ArrayList<MessageList> mlist() {

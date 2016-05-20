@@ -2,15 +2,15 @@ package com.likemessage.common;
 
 import android.content.Context;
 
-import com.gifisan.nio.UniqueThread;
-import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.jms.client.MessageConsumer;
-import com.gifisan.nio.jms.client.MessageProducer;
-import com.gifisan.nio.jms.client.impl.MessageConsumerImpl;
-import com.gifisan.nio.jms.client.impl.MessageProducerImpl;
+import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.UniqueThread;
+import com.gifisan.nio.plugin.jms.client.MessageConsumer;
+import com.gifisan.nio.plugin.jms.client.MessageProducer;
+import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageConsumer;
+import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageProducer;
 import com.likemessage.database.DBUtil;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,17 +32,19 @@ public class LConstants {
 
 //    private static ClientConnector connector = new ClientConnector("10.0.2.2",8300);
 
-    private static ClientConnector connector = new ClientConnector("192.168.1.67",8300);
+    private static ClientTCPConnector connector = new ClientTCPConnector("192.168.1.48",18900);
 
-    private static ClientSesssion request = null;
+    private static ClientSession request = null;
 
-    private static ClientSesssion receiveSession = null;
+    private static ClientSession receiveSession = null;
 
     public static UniqueThread uniqueThread = new UniqueThread();
 
     public static boolean initComplete = false;
 
     private static AtomicBoolean inited = new AtomicBoolean(false);
+
+    private static Logger logger = LoggerFactory.getLogger(LConstants.class);
 
     public static void init(Context context){
 
@@ -60,7 +62,7 @@ public class LConstants {
                     try {
 
                         THIS_PHONE = PhoneInfo.getPhoneInfo().getNativePhoneNumber();
-                        DebugUtil.info("================================THIS_PHONE:"+THIS_PHONE);
+                        logger.info("================================THIS_PHONE:"+THIS_PHONE);
 
                         if ("17087791610".equals(THIS_PHONE)){
                             FRIEND_PHONE = "18767480090";
@@ -68,16 +70,16 @@ public class LConstants {
                             FRIEND_PHONE = "17087791610";
                         }
 
-                        DebugUtil.info("================================FRIEND_PHONE:"+FRIEND_PHONE);
+                        logger.info("================================FRIEND_PHONE:"+FRIEND_PHONE);
 
-                        connector.connect(true);
+                        connector.connect();
                         request = connector.getClientSession();
                         receiveSession = connector.getClientSession();
 
-                        DebugUtil.info("================================Connected to server:"+connector.toString());
+                        logger.info("================================Connected to server:"+connector.toString());
 
-                        messageConsumer = new MessageConsumerImpl(receiveSession,THIS_PHONE);
-                        messageProducer = new MessageProducerImpl(request);
+                        messageConsumer = new DefaultMessageConsumer(receiveSession,THIS_PHONE);
+                        messageProducer = new DefaultMessageProducer(request);
                         messageProducer.login("admin","admin100");
                         messageConsumer.login("admin","admin100");
 
@@ -86,7 +88,7 @@ public class LConstants {
                     } catch (Exception e) {
                         e.printStackTrace();
 
-                        DebugUtil.info("================================Can not connect to:"+connector.toString());
+                        logger.info("================================Can not connect to:"+connector.toString());
                     }
                 }
             });
