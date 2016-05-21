@@ -18,12 +18,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.plugin.jms.ByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
-import com.gifisan.nio.plugin.jms.TextMessage;
-import com.gifisan.nio.plugin.jms.client.MessageConsumer;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
@@ -127,7 +123,7 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chat);
 
         AndroidUtilities.statusBarHeight = getStatusBarHeight();
 

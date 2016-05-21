@@ -30,9 +30,9 @@ public class LConstants {
 
     //    private ClientConnector connector = new ClientConnector("wkapp.wicp.net",11990);
 
-//    private static ClientConnector connector = new ClientConnector("10.0.2.2",8300);
+    private static ClientTCPConnector connector = new ClientTCPConnector("10.0.2.2",18900);
 
-    private static ClientTCPConnector connector = new ClientTCPConnector("192.168.1.48",18900);
+//    private static ClientTCPConnector connector = new ClientTCPConnector("192.168.1.48",18900);
 
     private static ClientSession request = null;
 

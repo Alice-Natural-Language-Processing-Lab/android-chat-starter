@@ -40,7 +40,7 @@ public class MessageAdpter extends BaseAdapter {
 		MessageHolder holder = null;
 		if (convertView == null) {
 			holder = new MessageHolder();
-			convertView = inflater.inflate(R.layout.lv_item, parent, false);
+			convertView = inflater.inflate(R.layout.fragment_message_item, parent, false);
 			convertView.setTag(holder);
 			holder.name = (TextView) convertView.findViewById(R.id.name);
 			holder.message = (TextView) convertView.findViewById(R.id.message);
