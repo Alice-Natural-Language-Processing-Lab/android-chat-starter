@@ -36,7 +36,7 @@ import in.co.madhur.chatbubblesdemo.widgets.EmojiView;
 import in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout;
 
 
-public class MainActivity extends ActionBarActivity implements SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
+public class ChatActivity extends ActionBarActivity implements SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
 
     private ListView chatListView;
     private EditText chatEditText1;
@@ -187,7 +187,7 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
             chatMessages.add(message);
 
         }
-        MainActivity.this.runOnUiThread(new Runnable() {
+        ChatActivity.this.runOnUiThread(new Runnable() {
             public void run() {
                 listAdapter.notifyDataSetChanged();
 
@@ -220,7 +220,6 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
         LConstants.uniqueThread.execute(new Runnable() {
             @Override
             public void run() {
-//                TextMessage _message = new TextMessage("mmm",LConstants.FRIEND_PHONE,messageText);
                 ByteMessage _message = new ByteMessage("mmm",LConstants.FRIEND_PHONE,"=====",messageText.getBytes(Encoding.UTF8));
                 try {
                     if(messageProducer.offer(_message)){
@@ -254,7 +253,7 @@ public class MainActivity extends ActionBarActivity implements SizeNotifierRelat
                 message.setMessageTime(new Date().getTime());
                 chatMessages.add(message);
 
-                MainActivity.this.runOnUiThread(new Runnable() {
+                ChatActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
                         listAdapter.notifyDataSetChanged();
                     }

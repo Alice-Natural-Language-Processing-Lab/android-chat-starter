@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import in.co.madhur.chatbubblesdemo.ChatActivity;
 import in.co.madhur.chatbubblesdemo.ChatListAdapter;
-import in.co.madhur.chatbubblesdemo.MainActivity;
 import in.co.madhur.chatbubblesdemo.model.ChatMessage;
 
 /**
@@ -33,7 +33,7 @@ public class MessageReceiver extends Thread {
 
     private Logger logger = LoggerFactory.getLogger(MessageReceiver.class);
 
-    public static void startReceive(MainActivity mainActivity, ArrayList<ChatMessage> chatMessages, ChatListAdapter listAdapter, ListView chatListView) {
+    public static void startReceive(ChatActivity mainActivity, ArrayList<ChatMessage> chatMessages, ChatListAdapter listAdapter, ListView chatListView) {
         if (started.compareAndSet(false, true)) {
             instance = new MessageReceiver(mainActivity, chatMessages, listAdapter, chatListView);
             instance.start();
@@ -45,13 +45,13 @@ public class MessageReceiver extends Thread {
         }
     }
 
-    private MainActivity mainActivity = null;
+    private ChatActivity mainActivity = null;
 
     private ArrayList<ChatMessage> chatMessages = null;
 
     private ChatListAdapter listAdapter = null;
 
-    private MessageReceiver(MainActivity mainActivity, ArrayList<ChatMessage> chatMessages, ChatListAdapter listAdapter, ListView chatListView) {
+    private MessageReceiver(ChatActivity mainActivity, ArrayList<ChatMessage> chatMessages, ChatListAdapter listAdapter, ListView chatListView) {
         this.mainActivity = mainActivity;
         this.chatMessages = chatMessages;
         this.listAdapter = listAdapter;
