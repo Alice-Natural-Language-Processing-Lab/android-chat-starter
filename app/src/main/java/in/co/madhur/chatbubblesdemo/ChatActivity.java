@@ -2,10 +2,10 @@ package in.co.madhur.chatbubblesdemo;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.gifisan.nio.Encoding;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.plugin.jms.ByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
@@ -36,20 +38,21 @@ import in.co.madhur.chatbubblesdemo.widgets.EmojiView;
 import in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout;
 
 
-public class ChatActivity extends ActionBarActivity implements SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
+public class ChatActivity extends Activity implements SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
 
     private ListView chatListView;
     private EditText chatEditText1;
-    private ArrayList<ChatMessage> chatMessages;
+    private ArrayList<ChatMessage> chatList;
     private ImageView enterChatView1, emojiButton;
-    private ChatListAdapter listAdapter;
+    private ChatListAdapter chatListAdapter;
     private EmojiView emojiView;
     private SizeNotifierRelativeLayout sizeNotifierRelativeLayout;
     private boolean showingEmoji;
     private int keyboardHeight;
     private boolean keyboardVisible;
     private WindowManager.LayoutParams windowLayoutParams;
-
+    private Logger logger = LoggerFactory.getLogger(ChatActivity.class);
+    private String phoneNO = null;
 
     /* ---------------------------------    ------------------------------*/
 
@@ -68,7 +71,7 @@ public class ChatActivity extends ActionBarActivity implements SizeNotifierRelat
 
                 if(v==chatEditText1)
                 {
-                    sendMessage(editText.getText().toString());
+                    sendMessage(editText.getText().toString(),phoneNO);
                 }
 
                 chatEditText1.setText("");
@@ -86,7 +89,7 @@ public class ChatActivity extends ActionBarActivity implements SizeNotifierRelat
 
             if(v==enterChatView1)
             {
-                sendMessage(chatEditText1.getText().toString());
+                sendMessage(chatEditText1.getText().toString(),phoneNO);
             }
 
             chatEditText1.setText("");
@@ -125,9 +128,15 @@ public class ChatActivity extends ActionBarActivity implements SizeNotifierRelat
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        Intent intent = getIntent();
+
+        this.phoneNO = (String)intent.getCharSequenceExtra("phoneNO");
+
+        logger.info("___________________________,onCreate,{}",phoneNO);
+
         AndroidUtilities.statusBarHeight = getStatusBarHeight();
 
-        chatMessages = new ArrayList<>();
+        chatList = new ArrayList<ChatMessage>();
 
         chatListView = (ListView) findViewById(R.id.chat_list_view);
 
@@ -152,9 +161,9 @@ public class ChatActivity extends ActionBarActivity implements SizeNotifierRelat
             }
         });
 
-        listAdapter = new ChatListAdapter(chatMessages, this);
+        chatListAdapter = new ChatListAdapter(getActivity(),chatListView,chatList);
 
-        chatListView.setAdapter(listAdapter);
+        chatListView.setAdapter(chatListAdapter);
 
         chatEditText1.setOnKeyListener(keyListener);
 
@@ -165,18 +174,17 @@ public class ChatActivity extends ActionBarActivity implements SizeNotifierRelat
         sizeNotifierRelativeLayout = (SizeNotifierRelativeLayout) findViewById(R.id.chat_layout);
         sizeNotifierRelativeLayout.delegate = this;
 
-        loadMsg();
+        MessageReceiver.getInstance().setChatListView(chatListView);
 
-        receiveMsg();
+        loadMsg(phoneNO);
 
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
     }
 
-    private void loadMsg(){
+    private void loadMsg(String phoneNO){
 
-
-        List<LMessage> chats = DBUtil.getDbUtil().findChat(LConstants.FRIEND_PHONE);
-
+        chatListAdapter.setChatNO(phoneNO);
+        List<LMessage> chats = DBUtil.getDbUtil().findChat(phoneNO);
         for(LMessage lMessage:chats){
 
             ChatMessage message = new ChatMessage();
@@ -184,25 +192,20 @@ public class ChatActivity extends ActionBarActivity implements SizeNotifierRelat
             message.setSend(lMessage.isSend() == 1);
             message.setMessageText(lMessage.getMessage());
             message.setMessageTime(lMessage.getMsgDate());
-            chatMessages.add(message);
-
+            chatList.add(message);
         }
+
         ChatActivity.this.runOnUiThread(new Runnable() {
             public void run() {
-                listAdapter.notifyDataSetChanged();
+                chatListAdapter.notifyDataSetChanged();
 
-                chatListView.setSelection(listAdapter.getCount() - 1);
+//                chatListView.setSelection(chatListAdapter.getCount() - 1);
             }
         });
 
     }
 
-    private void receiveMsg(){
-        /*-------------------- receive message ----------------- */
-        MessageReceiver.startReceive(this,chatMessages,listAdapter,chatListView);
-    }
-
-    private void sendMessage(final String messageText)
+    private void sendMessage(final String messageText,final String toPhoneNO)
     {
         if(messageText.trim().length()==0)
             return;
@@ -211,30 +214,30 @@ public class ChatActivity extends ActionBarActivity implements SizeNotifierRelat
         message.setMessageText(messageText);
         message.setSend(true);
         message.setMessageTime(new Date().getTime());
-        chatMessages.add(message);
-
-        final MessageProducer messageProducer = LConstants.messageProducer;
-
-
+        chatListAdapter.addChat(message);
 
         LConstants.uniqueThread.execute(new Runnable() {
             @Override
             public void run() {
-                ByteMessage _message = new ByteMessage("mmm",LConstants.FRIEND_PHONE,"=====",messageText.getBytes(Encoding.UTF8));
+
+                MessageProducer messageProducer = LConstants.messageProducer;
+
+                logger.info("________________sendMessage,producer:{}",messageProducer);
+
+                ByteMessage _message = new ByteMessage("mmm",toPhoneNO,"=====",messageText.getBytes(Encoding.UTF8));
                 try {
                     if(messageProducer.offer(_message)){
-                        DBUtil.getDbUtil().saveMsg(message,LConstants.THIS_PHONE,LConstants.FRIEND_PHONE);
+                        DBUtil.getDbUtil().saveMsg(message,LConstants.THIS_PHONE,toPhoneNO);
                     }
-
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
             }
         });
 
-        listAdapter.notifyDataSetChanged();
+//        chatListAdapter.notifyDataSetChanged();
 
-        chatListView.setSelection(listAdapter.getCount() - 1);
+//        chatListView.setSelection(chatListAdapter.getCount() - 1);
 
         // Mark message as delivered after one second
 
@@ -251,11 +254,11 @@ public class ChatActivity extends ActionBarActivity implements SizeNotifierRelat
                 message.setMessageText(messageText);
                 message.setUserType(UserType.SELF);
                 message.setMessageTime(new Date().getTime());
-                chatMessages.add(message);
+                chatList.add(message);
 
                 ChatActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
-                        listAdapter.notifyDataSetChanged();
+                        chatListAdapter.notifyDataSetChanged();
                     }
                 });
 

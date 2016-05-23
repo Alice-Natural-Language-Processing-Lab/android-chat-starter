@@ -22,17 +22,15 @@ public class LConstants {
 
     public static String THIS_PHONE = null;
 
-    public static String FRIEND_PHONE = null;
-
     public static MessageConsumer messageConsumer = null;
 
     public static MessageProducer messageProducer = null;
 
-    //    private ClientConnector connector = new ClientConnector("wkapp.wicp.net",11990);
+//    private static ClientTCPConnector connector = new ClientTCPConnector("wkapp.wicp.net",11990);
 
-    private static ClientTCPConnector connector = new ClientTCPConnector("10.0.2.2",18900);
+//    private static ClientTCPConnector connector = new ClientTCPConnector("10.0.2.2",18900);
 
-//    private static ClientTCPConnector connector = new ClientTCPConnector("192.168.1.48",18900);
+    private static ClientTCPConnector connector = new ClientTCPConnector("192.168.1.48",8300);
 
     private static ClientSession request = null;
 
@@ -64,14 +62,6 @@ public class LConstants {
                         THIS_PHONE = PhoneInfo.getPhoneInfo().getNativePhoneNumber();
                         logger.info("================================THIS_PHONE:"+THIS_PHONE);
 
-                        if ("17087791610".equals(THIS_PHONE)){
-                            FRIEND_PHONE = "18767480090";
-                        }else{
-                            FRIEND_PHONE = "17087791610";
-                        }
-
-                        logger.info("================================FRIEND_PHONE:"+FRIEND_PHONE);
-
                         connector.connect();
                         request = connector.getClientSession();
                         receiveSession = connector.getClientSession();
@@ -92,8 +82,6 @@ public class LConstants {
                     }
                 }
             });
-
-
         }
     }
 

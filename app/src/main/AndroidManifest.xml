@@ -6,6 +6,15 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+    <!-- 读联系人权限 -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- 写联系人权限 -->
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <!-- 拨号权限 -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <!-- 读短信权限 -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -13,7 +22,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.likemessage.layout.PhoneActivity"
+            android:name="com.likemessage.PhoneActivity"
             android:label="LikeMessage"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

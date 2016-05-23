@@ -1,11 +1,12 @@
-package in.co.madhur.chatbubblesdemo;
+package com.likemessage.message;
 
 /**
  * 列表泛型实例类
  */
-public class MessageList {
+public class MessageBean {
 
 	private String name;
+	private String phoneNO;
 	private String message;
 
 	public String getName() {
@@ -22,5 +23,13 @@ public class MessageList {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public String getPhoneNO() {
+		return phoneNO;
+	}
+
+	public void setPhoneNO(String phoneNO) {
+		this.phoneNO = phoneNO;
 	}
 }

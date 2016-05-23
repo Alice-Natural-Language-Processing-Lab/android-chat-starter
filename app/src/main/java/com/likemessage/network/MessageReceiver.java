@@ -11,14 +11,16 @@ import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
 import com.gifisan.nio.plugin.jms.client.OnMessage;
+import com.likemessage.PhoneActivity;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
+import com.likemessage.message.MessageBean;
+import com.likemessage.message.MessageListAdpter;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import in.co.madhur.chatbubblesdemo.ChatActivity;
 import in.co.madhur.chatbubblesdemo.ChatListAdapter;
 import in.co.madhur.chatbubblesdemo.model.ChatMessage;
 
@@ -33,41 +35,51 @@ public class MessageReceiver extends Thread {
 
     private Logger logger = LoggerFactory.getLogger(MessageReceiver.class);
 
-    public static void startReceive(ChatActivity mainActivity, ArrayList<ChatMessage> chatMessages, ChatListAdapter listAdapter, ListView chatListView) {
-        if (started.compareAndSet(false, true)) {
-            instance = new MessageReceiver(mainActivity, chatMessages, listAdapter, chatListView);
-            instance.start();
-        } else {
-            instance.mainActivity = mainActivity;
-            instance.chatMessages = chatMessages;
-            instance.listAdapter = listAdapter;
-            instance.chatListView = chatListView;
-        }
+    public static MessageReceiver getInstance(){
+        return instance;
     }
 
-    private ChatActivity mainActivity = null;
-
-    private ArrayList<ChatMessage> chatMessages = null;
-
-    private ChatListAdapter listAdapter = null;
-
-    private MessageReceiver(ChatActivity mainActivity, ArrayList<ChatMessage> chatMessages, ChatListAdapter listAdapter, ListView chatListView) {
-        this.mainActivity = mainActivity;
-        this.chatMessages = chatMessages;
-        this.listAdapter = listAdapter;
-        this.chatListView = chatListView;
+    public static void startReceive(PhoneActivity mainActivity) {
+        if (started.compareAndSet(false, true)) {
+            instance = new MessageReceiver();
+            instance.start();
+        }
     }
 
     private ListView chatListView = null;
 
+    private ListView messageListView = null;
+
+    private MessageListAdpter messageListAdpter = null;
+
+    private ChatListAdapter chatListAdapter = null;
+
+    private ArrayList<ChatMessage> chatList = null;
+
+    private ArrayList<MessageBean> messageList = null;
+
+    private MessageReceiver() {
+    }
+
+    public void setChatListView(ListView listView){
+        this.chatListView = listView;
+        this.chatListAdapter = (ChatListAdapter) chatListView.getAdapter();
+        this.chatList = chatListAdapter.getChatList();
+    }
+
+    public void setMessageListView(ListView listView){
+        this.messageListView = listView;
+        this.messageListAdpter = (MessageListAdpter) listView.getAdapter();
+        this.messageList = messageListAdpter.getMessageList();
+    }
+
     public void run() {
         logger.info("========================start init receiver");
         for (; !LConstants.initComplete; ) {
-            ThreadUtil.sleep(3000);
+            ThreadUtil.sleep(500);
         }
 
         logger.info("========================init complete");
-
 
         try {
             MessageConsumer messageConsumer = LConstants.messageConsumer;
@@ -79,25 +91,40 @@ public class MessageReceiver extends Thread {
 
                     String messageText = new String(byteMessage.getByteArray(), Encoding.UTF8);
 
-                    final ChatMessage charMessage = new ChatMessage();
-                    charMessage.setMessageText(messageText);
-                    charMessage.setSend(false);
-                    charMessage.setMessageTime(new Date().getTime());
-                    chatMessages.add(charMessage);
+                    final ChatMessage chatMessage = new ChatMessage();
+                    chatMessage.setMessageText(messageText);
+                    chatMessage.setSend(false);
+                    chatMessage.setMessageTime(new Date().getTime());
 
-                    DBUtil.getDbUtil().saveMsg(charMessage, LConstants.FRIEND_PHONE, LConstants.THIS_PHONE);
+                    String fromNO = byteMessage.getQueueName();
 
-                    mainActivity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            listAdapter.notifyDataSetChanged();
+                    if (chatListAdapter != null){
 
-                            chatListView.setSelection(listAdapter.getCount() - 1);
+                        String chatNO = chatListAdapter.getChatNO();
+
+                        logger.info("___________________________chatNO,{}",chatNO);
+
+                        if (fromNO.equals(chatListAdapter.getChatNO())){
+                            chatListAdapter.addChat(chatMessage);
                         }
-                    });
+                    }
+
+                    if (messageListAdpter != null){
+
+                        //TODO add to messageList
+                    }
+
+
+                    DBUtil.getDbUtil().saveMsg(chatMessage,fromNO, LConstants.THIS_PHONE);
                 }
             });
         } catch (JMSException e) {
             e.printStackTrace();
         }
     }
+
+
+
+
+
 }

@@ -1,4 +1,4 @@
-package com.likemessage.layout;
+package com.likemessage.message;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -15,13 +15,12 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
 import com.likemessage.database.LMessage;
+import com.likemessage.network.MessageReceiver;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import in.co.madhur.chatbubblesdemo.ChatActivity;
-import in.co.madhur.chatbubblesdemo.MessageAdpter;
-import in.co.madhur.chatbubblesdemo.MessageList;
 import in.co.madhur.chatbubblesdemo.R;
 
 /**
@@ -33,9 +32,9 @@ public class MessageFragment extends Fragment {
 
     private View view = null;
 
-    private ListView mlv;
+    private ListView messageListView;
 
-    private MessageAdpter madpter;
+    private MessageListAdpter messageListAdaptor;
 
     public MessageFragment() {
     }
@@ -46,24 +45,29 @@ public class MessageFragment extends Fragment {
 
         final Activity activity = this.getActivity();
 
-//        activity.setContentView(R.layout.fragment_message);
-
         LConstants.init(activity.getApplicationContext());
 
-        logger.info("_______________________________onCreate");
+        logger.info("_______________________________onActivityCreated");
 
-        madpter = new MessageAdpter(activity);
+        messageListView = (ListView) findViewById(R.id.messageListView);
 
-        mlv = (ListView) findViewById(R.id.messageListView);
-        mlv.setAdapter(madpter);
-        mlv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        messageListAdaptor = new MessageListAdpter(activity,messageListView,mlist());
+
+        messageListView.setAdapter(messageListAdaptor);
+
+        messageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                MessageListAdpter adapter = (MessageListAdpter) adapterView.getAdapter();
+                MessageBean messageBean = adapter.getItem(i);
                 Intent intent = new Intent(activity,ChatActivity.class);
-                intent.putExtra("request_text_for_main", "从Main传递到SecondActivity");
+                intent.putExtra("phoneNO", messageBean.getPhoneNO());
                 startActivityForResult(intent, 1);
             }
         });
-        madpter.setMlist(mlist());
+
+        messageListAdaptor.notifyDataSetChanged();
+
+        MessageReceiver.getInstance().setMessageListView(messageListView);
     }
 
     private View findViewById(int id){
@@ -85,28 +89,17 @@ public class MessageFragment extends Fragment {
         return view;
     }
 
-    private ArrayList<MessageList> mlist() {
-        String name[] = { "妈妈", "爸爸", "姐姐", "哥哥", "弟弟" };
-        String message[] = { "起床了么？", "今天准备做什么？", "快给我回个电话。。。", "你在干嘛？",
-                "哥哥带我出去玩。。。" };
-        ArrayList<MessageList> list = new ArrayList<MessageList>();
-        for (int i = 0; i < name.length; i++) {
-            MessageList messageList = new MessageList();
-            messageList.setName(name[i]);
-            messageList.setMessage(message[i]);
-            list.add(messageList);
-        }
-
+    private ArrayList<MessageBean> mlist() {
+        ArrayList<MessageBean> list = new ArrayList<MessageBean>();
         List<LMessage> lists1 = DBUtil.getDbUtil().findTop(1);
-
         if (lists1.size() > 0){
             LMessage lMessage = lists1.get(0);
-            MessageList messageList = new MessageList();
-            messageList.setName(lMessage.getToNo());
-            messageList.setMessage(lMessage.getMessage());
-            list.add(messageList);
+            MessageBean messageBean = new MessageBean();
+            messageBean.setName(lMessage.getToNo());
+            messageBean.setMessage(lMessage.getMessage());
+            messageBean.setPhoneNO(lMessage.getFromNo());
+            list.add(messageBean);
         }
         return list;
     };
-
 }

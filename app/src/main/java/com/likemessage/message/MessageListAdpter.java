@@ -1,33 +1,43 @@
-package in.co.madhur.chatbubblesdemo;
-
-import java.util.ArrayList;
+package com.likemessage.message;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
-public class MessageAdpter extends BaseAdapter {
+import java.util.ArrayList;
+
+import in.co.madhur.chatbubblesdemo.R;
+
+public class MessageListAdpter extends BaseAdapter {
 
 	private Context context;
+	private ListView messageListView;
 	private LayoutInflater inflater;
-	private ArrayList<MessageList> mlist;
+	private ArrayList<MessageBean> messageList;
 
-	public MessageAdpter(Context mc) {
+	public MessageListAdpter(Context mc,ListView messageListView,ArrayList<MessageBean> messageList) {
+		this.messageListView = messageListView;
 		this.context = mc;
+		this.messageList = messageList;
 		inflater = LayoutInflater.from(context);
+	}
+
+	public ArrayList<MessageBean> getMessageList(){
+		return messageList;
 	}
 
 	@Override
 	public int getCount() {
-		return mlist == null ? 0 : mlist.size();
+		return messageList == null ? 0 : messageList.size();
 	}
 
 	@Override
-	public Object getItem(int position) {
-		return mlist.get(position);
+	public MessageBean getItem(int position) {
+		return messageList.get(position);
 	}
 
 	@Override
@@ -48,19 +58,14 @@ public class MessageAdpter extends BaseAdapter {
 			holder = (MessageHolder) convertView.getTag();
 		}
 
-		holder.name.setText(mlist.get(position).getName());
-		holder.message.setText(mlist.get(position).getMessage());
+		holder.name.setText(messageList.get(position).getName());
+		holder.message.setText(messageList.get(position).getMessage());
 
 		return convertView;
 	}
 
-	public void setMlist(ArrayList<MessageList> mlist) {
-		this.mlist = mlist;
-		notifyDataSetChanged();
-	}
-
-	public void addMlist(ArrayList<MessageList> mlist) {
-		this.mlist.addAll(mlist);
+	public void addMessage(MessageBean messageBean) {
+		this.messageList.add(messageBean);
 		notifyDataSetChanged();
 	}
 
@@ -69,4 +74,8 @@ public class MessageAdpter extends BaseAdapter {
 		private TextView message;
 	}
 
+	public void notifyDataSetChanged() {
+		super.notifyDataSetChanged();
+		messageListView.setSelection(getCount()-1);
+	}
 }

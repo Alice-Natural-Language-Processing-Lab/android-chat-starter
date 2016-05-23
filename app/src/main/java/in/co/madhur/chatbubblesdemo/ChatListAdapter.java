@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -19,25 +20,31 @@ import in.co.madhur.chatbubblesdemo.widgets.Emoji;
  */
 public class ChatListAdapter extends BaseAdapter {
 
-    private ArrayList<ChatMessage> chatMessages;
+
+    private ListView chatListView = null;
+    private ArrayList<ChatMessage> chatList;
     private Context context;
     public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH:mm");
+    private String chatNO = null;
 
-    public ChatListAdapter(ArrayList<ChatMessage> chatMessages, Context context) {
-        this.chatMessages = chatMessages;
+    public ChatListAdapter(Context context,ListView chatListView,ArrayList<ChatMessage> chatList) {
+        this.chatListView = chatListView;
+        this.chatList = chatList;
         this.context = context;
-
     }
 
+    public ArrayList<ChatMessage> getChatList(){
+        return chatList;
+    }
 
     @Override
     public int getCount() {
-        return chatMessages.size();
+        return chatList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return chatMessages.get(position);
+        return chatList.get(position);
     }
 
     @Override
@@ -48,7 +55,7 @@ public class ChatListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = null;
-        ChatMessage message = chatMessages.get(position);
+        ChatMessage message = chatList.get(position);
         ViewHolder1 holder1;
         ViewHolder2 holder2;
 
@@ -98,13 +105,7 @@ public class ChatListAdapter extends BaseAdapter {
 
             holder1.messageTextView.setText(Emoji.replaceEmoji(message.getMessageText(), holder1.messageTextView.getPaint().getFontMetricsInt(), AndroidUtilities.dp(16)));
             holder1.timeTextView.setText(SIMPLE_DATE_FORMAT.format(message.getMessageTime()));
-
-
-
-
         }
-
-
         return v;
     }
 
@@ -115,22 +116,37 @@ public class ChatListAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        ChatMessage message = chatMessages.get(position);
+        ChatMessage message = chatList.get(position);
         return message.isSend() ? 0 :1;
         //FIXME .............
+    }
+
+    public String getChatNO() {
+        return chatNO;
+    }
+
+    public void setChatNO(String chatNO) {
+        this.chatNO = chatNO;
     }
 
     private class ViewHolder1 {
         public TextView messageTextView;
         public TextView timeTextView;
-
-
     }
 
     private class ViewHolder2 {
         public ImageView messageStatus;
         public TextView messageTextView;
         public TextView timeTextView;
+    }
 
+    public void addChat(ChatMessage chatMessage){
+        this.chatList.add(chatMessage);
+        notifyDataSetChanged();
+    }
+
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        chatListView.setSelection(getCount()-1);
     }
 }

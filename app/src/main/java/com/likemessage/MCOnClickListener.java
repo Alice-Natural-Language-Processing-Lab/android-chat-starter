@@ -5,15 +5,13 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.likemessage.layout.ContactFragment;
-import com.likemessage.layout.MessageFragment;
+import com.likemessage.contact.ContactFragment;
+import com.likemessage.message.MessageFragment;
 
 import in.co.madhur.chatbubblesdemo.R;
 

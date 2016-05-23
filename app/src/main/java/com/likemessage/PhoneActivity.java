@@ -1,4 +1,4 @@
-package com.likemessage.layout;
+package com.likemessage;
 
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -8,7 +8,9 @@ import android.widget.LinearLayout;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.likemessage.MCOnClickListener;
+import com.likemessage.contact.ContactFragment;
+import com.likemessage.message.MessageFragment;
+import com.likemessage.network.MessageReceiver;
 
 import in.co.madhur.chatbubblesdemo.R;
 
@@ -42,5 +44,12 @@ public class PhoneActivity extends Activity {
         btn_message.setOnClickListener(mcOnClickListener);
         btn_contact.setOnClickListener(mcOnClickListener);
 
+
+        receiveMsg();
+    }
+
+    private void receiveMsg(){
+        /*-------------------- receive message ----------------- */
+        MessageReceiver.startReceive(this);
     }
 }
