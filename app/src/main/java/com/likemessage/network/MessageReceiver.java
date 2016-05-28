@@ -6,11 +6,9 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.plugin.jms.ByteMessage;
-import com.gifisan.nio.plugin.jms.JMSException;
-import com.gifisan.nio.plugin.jms.Message;
-import com.gifisan.nio.plugin.jms.client.MessageConsumer;
-import com.gifisan.nio.plugin.jms.client.OnMessage;
+import com.gifisan.nio.plugin.jms.MapByteMessage;
+import com.gifisan.nio.plugin.jms.client.impl.FixedMessageConsumer;
+import com.gifisan.nio.plugin.jms.client.impl.OnMappedMessage;
 import com.likemessage.PhoneActivity;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
@@ -35,7 +33,7 @@ public class MessageReceiver extends Thread {
 
     private Logger logger = LoggerFactory.getLogger(MessageReceiver.class);
 
-    public static MessageReceiver getInstance(){
+    public static MessageReceiver getInstance() {
         return instance;
     }
 
@@ -61,13 +59,13 @@ public class MessageReceiver extends Thread {
     private MessageReceiver() {
     }
 
-    public void setChatListView(ListView listView){
+    public void setChatListView(ListView listView) {
         this.chatListView = listView;
         this.chatListAdapter = (ChatListAdapter) chatListView.getAdapter();
         this.chatList = chatListAdapter.getChatList();
     }
 
-    public void setMessageListView(ListView listView){
+    public void setMessageListView(ListView listView) {
         this.messageListView = listView;
         this.messageListAdpter = (MessageListAdpter) listView.getAdapter();
         this.messageList = messageListAdpter.getMessageList();
@@ -81,50 +79,44 @@ public class MessageReceiver extends Thread {
 
         logger.info("========================init complete");
 
-        try {
-            MessageConsumer messageConsumer = LConstants.messageConsumer;
-            messageConsumer.receive(new OnMessage() {
-                public void onReceive(Message message) {
-                    logger.info("========================MessageReceived:" + message.toString());
+        FixedMessageConsumer messageConsumer = LConstants.messageConsumer;
 
-                    ByteMessage byteMessage = (ByteMessage)message;
+        messageConsumer.listen("lMessage", new OnMappedMessage() {
+            public void onReceive(MapByteMessage message) {
 
-                    String messageText = new String(byteMessage.getByteArray(), Encoding.UTF8);
+                logger.info("========================MessageReceived:" + message.toString());
 
-                    final ChatMessage chatMessage = new ChatMessage();
-                    chatMessage.setMessageText(messageText);
-                    chatMessage.setSend(false);
-                    chatMessage.setMessageTime(new Date().getTime());
+                String messageText = new String(message.getByteArray(), Encoding.UTF8);
 
-                    String fromNO = byteMessage.getQueueName();
+                final ChatMessage chatMessage = new ChatMessage();
+                chatMessage.setMessageText(messageText);
+                chatMessage.setSend(false);
+                chatMessage.setMessageTime(new Date().getTime());
 
-                    if (chatListAdapter != null){
+                String fromNO = message.getQueueName();
 
-                        String chatNO = chatListAdapter.getChatNO();
+                if (chatListAdapter != null) {
 
-                        logger.info("___________________________chatNO,{}",chatNO);
+                    String chatNO = chatListAdapter.getChatNO();
 
-                        if (fromNO.equals(chatListAdapter.getChatNO())){
-                            chatListAdapter.addChat(chatMessage);
-                        }
+                    logger.info("___________________________chatNO,{}", chatNO);
+
+                    if (fromNO.equals(chatListAdapter.getChatNO())) {
+                        chatListAdapter.addChat(chatMessage);
                     }
-
-                    if (messageListAdpter != null){
-
-                        //TODO add to messageList
-                    }
-
-
-                    DBUtil.getDbUtil().saveMsg(chatMessage,fromNO, LConstants.THIS_PHONE);
                 }
-            });
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
+
+                if (messageListAdpter != null) {
+
+                    //TODO add to messageList
+                }
+
+
+                DBUtil.getDbUtil().saveMsg(chatMessage, fromNO, LConstants.THIS_USER_NAME);
+            }
+        });
+
     }
-
-
-
 
 
 }

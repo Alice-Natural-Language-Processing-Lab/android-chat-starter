@@ -7,10 +7,10 @@ import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.UniqueThread;
-import com.gifisan.nio.plugin.jms.client.MessageConsumer;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
-import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageConsumer;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageProducer;
+import com.gifisan.nio.plugin.jms.client.impl.FixedMessageConsumer;
+import com.likemessage.client.LMClient;
 import com.likemessage.database.DBUtil;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,21 +20,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class LConstants {
 
-    public static String THIS_PHONE = null;
+    public static Integer THIS_USER_ID;
 
-    public static MessageConsumer messageConsumer = null;
+    public static String THIS_USER_NAME;
+
+    public static String THIS_NICK_NAME;
+
+    public static FixedMessageConsumer messageConsumer = null;
 
     public static MessageProducer messageProducer = null;
 
-//    private static ClientTCPConnector connector = new ClientTCPConnector("wkapp.wicp.net",11990);
+    public static LMClient client = new LMClient();
 
-//    private static ClientTCPConnector connector = new ClientTCPConnector("10.0.2.2",18900);
+//    public static ClientTCPConnector connector = new ClientTCPConnector("wkapp.wicp.net",11990,"M");
 
-    private static ClientTCPConnector connector = new ClientTCPConnector("192.168.1.48",8300);
+//    public static ClientTCPConnector connector = new ClientTCPConnector("10.0.2.2",18900,"M");
 
-    private static ClientSession request = null;
+    public static ClientTCPConnector connector = new ClientTCPConnector("192.168.191.1", 18900, "M");
 
-    private static ClientSession receiveSession = null;
+//    public static ClientTCPConnector connector = new ClientTCPConnector("192.168.1.48", 8300, "M");
+
+    public static ClientSession clientSession = null;
 
     public static UniqueThread uniqueThread = new UniqueThread();
 
@@ -44,11 +50,11 @@ public class LConstants {
 
     private static Logger logger = LoggerFactory.getLogger(LConstants.class);
 
-    public static void init(Context context){
+    public static void init(Context context) {
 
-        if (inited.compareAndSet(false,true)){
+        if (inited.compareAndSet(false, true)) {
 
-            PhoneInfo.init(context);
+//            PhoneInfo.init(context);
 
             DBUtil.init(context);
 
@@ -59,26 +65,26 @@ public class LConstants {
                 public void run() {
                     try {
 
-                        THIS_PHONE = PhoneInfo.getPhoneInfo().getNativePhoneNumber();
-                        logger.info("================================THIS_PHONE:"+THIS_PHONE);
+//                        THIS_PHONE = PhoneInfo.getPhoneInfo().getNativePhoneNumber();
+//                        logger.info("================================THIS_PHONE:" + THIS_PHONE);
+
+                        logger.info("================================start to connect server:");
 
                         connector.connect();
-                        request = connector.getClientSession();
-                        receiveSession = connector.getClientSession();
 
-                        logger.info("================================Connected to server:"+connector.toString());
+                        clientSession = connector.getClientSession();
 
-                        messageConsumer = new DefaultMessageConsumer(receiveSession,THIS_PHONE);
-                        messageProducer = new DefaultMessageProducer(request);
-                        messageProducer.login("admin","admin100");
-                        messageConsumer.login("admin","admin100");
+                        logger.info("================================Connected to server:" + connector.toString());
+
+                        messageConsumer = new FixedMessageConsumer(clientSession);
+                        messageProducer = new DefaultMessageProducer(clientSession);
 
                         initComplete = true;
 
                     } catch (Exception e) {
                         e.printStackTrace();
 
-                        logger.info("================================Can not connect to:"+connector.toString());
+                        logger.info("================================Can not connect to:" + connector.toString());
                     }
                 }
             });

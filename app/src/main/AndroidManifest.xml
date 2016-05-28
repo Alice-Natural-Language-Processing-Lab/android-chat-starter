@@ -22,7 +22,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.likemessage.PhoneActivity"
+            android:name="com.likemessage.LoginActivity"
             android:label="LikeMessage"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -31,6 +31,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.likemessage.PhoneActivity"
+            android:label="LM"
+            />
         <activity
             android:name=".ChatActivity"
             android:label="与TA的聊天" />

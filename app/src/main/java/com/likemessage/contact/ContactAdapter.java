@@ -1,24 +1,18 @@
 package com.likemessage.contact;
 
 import android.app.Activity;
-import android.content.ContentUris;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.QuickContactBadge;
 import android.widget.TextView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.bean.B_Contact;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,14 +26,14 @@ import in.co.madhur.chatbubblesdemo.R;
 public class ContactAdapter extends BaseAdapter {
 
 	private LayoutInflater inflater;
-	private List<ContactBean> list;
+	private List<B_Contact> list;
 	private HashMap<String, Integer> alphaIndexer; // 字母索引
 	private String[] sections; // 存储每个章节
 	private Activity activity; // 上下文
 
 	private Logger logger = LoggerFactory.getLogger(ContactAdapter.class);
 
-	public ContactAdapter(Activity activity, List<ContactBean> list,
+	public ContactAdapter(Activity activity, List<B_Contact> list,
 						  QuickAlphabeticBar alpha) {
 		this.activity = activity;
 		this.inflater = LayoutInflater.from(activity);
@@ -90,8 +84,8 @@ public class ContactAdapter extends BaseAdapter {
 		if (convertView == null) {
 			convertView = inflater.inflate(R.layout.fragment_contact_item, null);
 			holder = new ViewHolder();
-			holder.quickContactBadge = (QuickContactBadge) convertView
-					.findViewById(R.id.qcb);
+			holder.contact_header = (ImageView) convertView
+					.findViewById(R.id.contact_header);
 			holder.alpha = (TextView) convertView.findViewById(R.id.alpha);
 			holder.name = (TextView) convertView.findViewById(R.id.name);
 			holder.number = (TextView) convertView.findViewById(R.id.number);
@@ -102,26 +96,27 @@ public class ContactAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		ContactBean contact = list.get(position);
-		String name = contact.getDisplayName();
-		String number = contact.getPhoneNum();
-		holder.name.setText(name);
-		holder.number.setText(number);
-		holder.quickContactBadge.assignContactUri(ContactsContract.Contacts.getLookupUri(
-				contact.getContactId(), contact.getLookUpKey()));
-		if (0 == contact.getPhotoId()) {
-			holder.quickContactBadge.setImageResource(R.drawable.ic_launcher);
+		B_Contact contact = list.get(position);
+		String backupName = contact.getBackupName();
+		String nickname = contact.getNickname();
+		holder.name.setText(backupName);
+		holder.number.setText(nickname);
+		//好像是打开手机号码名片
+//		holder.quickContactBadge.assignContactUri(ContactsContract.Contacts.getLookupUri(
+//				contact.getContactId(), contact.getLookUpKey()));
+//		if (0 == contact.getPhotoId()) {
+//			holder.quickContactBadge.setImageResource(R.drawable.ic_launcher);
 //			holder.startMessageChat.setImageResource(R.drawable.ic_launcher);
 //			holder.startPhoneCall.setImageResource(android.R.drawable.sym_action_call);
-		} else {
-			Uri uri = ContentUris.withAppendedId(
-					ContactsContract.Contacts.CONTENT_URI,
-					contact.getContactId());
-			InputStream input = ContactsContract.Contacts
-					.openContactPhotoInputStream(activity.getContentResolver(), uri);
-			Bitmap contactPhoto = BitmapFactory.decodeStream(input);
-			holder.quickContactBadge.setImageBitmap(contactPhoto);
-		}
+//		} else {
+//			Uri uri = ContentUris.withAppendedId(
+//					ContactsContract.Contacts.CONTENT_URI,
+//					contact.getContactId());
+//			InputStream input = ContactsContract.Contacts
+//					.openContactPhotoInputStream(activity.getContentResolver(), uri);
+//			Bitmap contactPhoto = BitmapFactory.decodeStream(input);
+//			holder.quickContactBadge.setImageBitmap(contactPhoto);
+//		}
 		// 当前字母
 		String currentStr = getAlpha(contact.getSortKey());
 		// 前面的字母
@@ -172,7 +167,7 @@ public class ContactAdapter extends BaseAdapter {
 	}
 
 	private static class ViewHolder {
-		QuickContactBadge quickContactBadge;
+		ImageView contact_header;
 		TextView alpha;
 		TextView name;
 		TextView number;

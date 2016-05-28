@@ -12,7 +12,6 @@ import android.widget.ListView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
 import com.likemessage.database.LMessage;
 import com.likemessage.network.MessageReceiver;
@@ -44,8 +43,6 @@ public class MessageFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         final Activity activity = this.getActivity();
-
-        LConstants.init(activity.getApplicationContext());
 
         logger.info("_______________________________onActivityCreated");
 

@@ -20,7 +20,7 @@ import android.widget.ListView;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.plugin.jms.ByteMessage;
+import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
 import com.likemessage.common.LConstants;
@@ -224,10 +224,10 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
                 logger.info("________________sendMessage,producer:{}",messageProducer);
 
-                ByteMessage _message = new ByteMessage("mmm",toPhoneNO,"=====",messageText.getBytes(Encoding.UTF8));
+                TextByteMessage _message = new TextByteMessage("mmm",toPhoneNO,"=====",messageText.getBytes(Encoding.UTF8));
                 try {
                     if(messageProducer.offer(_message)){
-                        DBUtil.getDbUtil().saveMsg(message,LConstants.THIS_PHONE,toPhoneNO);
+                        DBUtil.getDbUtil().saveMsg(message,LConstants.THIS_USER_NAME,toPhoneNO);
                     }
                 } catch (JMSException e) {
                     e.printStackTrace();

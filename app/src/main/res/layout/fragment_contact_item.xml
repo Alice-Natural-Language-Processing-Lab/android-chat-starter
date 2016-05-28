@@ -20,8 +20,8 @@
 
         <!-- 联系人信息 -->
 
-        <QuickContactBadge
-            android:id="@+id/qcb"
+        <ImageView
+            android:id="@+id/contact_header"
             android:layout_width="75dip"
             android:layout_height="75dip"
             android:layout_alignParentLeft="true"
@@ -29,16 +29,27 @@
             android:layout_marginTop="3dip"
             android:src="@drawable/ic_launcher" />
 
+
+        <!--<QuickContactBadge-->
+            <!--android:id="@+id/qcb"-->
+            <!--android:layout_width="75dip"-->
+            <!--android:layout_height="75dip"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_below="@+id/alpha"-->
+            <!--android:layout_marginTop="3dip"-->
+            <!--android:src="@drawable/ic_launcher" />-->
+
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="5.0dip"
-            android:layout_toRightOf="@+id/qcb"
+            android:layout_toRightOf="@+id/contact_header"
             android:singleLine="true"
             android:textAppearance="?android:textAppearanceLarge"
-            android:textColor="#000000" />
+            android:textColor="#000000"
+            android:text="www" />
 
         <TextView
             android:id="@+id/number"
@@ -46,10 +57,11 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="5.0dip"
-            android:layout_toRightOf="@+id/qcb"
+            android:layout_toRightOf="@+id/contact_header"
             android:singleLine="true"
             android:textAppearance="?android:textAppearanceSmall"
-            android:textColor="#000000" />
+            android:textColor="#000000"
+            android:text="123" />
 
 
         <ImageView
