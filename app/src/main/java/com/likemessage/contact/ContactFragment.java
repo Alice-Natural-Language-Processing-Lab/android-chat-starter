@@ -6,17 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.likemessage.bean.B_Contact;
-import com.likemessage.client.LMClient;
 import com.likemessage.common.LConstants;
 
-import java.io.IOException;
 import java.util.List;
 
 import in.co.madhur.chatbubblesdemo.R;
@@ -33,7 +30,7 @@ public class ContactFragment extends Fragment {
     public ContactFragment() {
     }
 
-    View findViewById(int id){
+    View findViewById(int id) {
         return getActivity().findViewById(id);
     }
 
@@ -47,47 +44,25 @@ public class ContactFragment extends Fragment {
 
         // 实例化
 //        asyncQueryHandler = new MyAsyncQueryHandler(getActivity().getContentResolver());
-        init();
-
-        ImageView btn_startMessageChat = (ImageView) findViewById(R.id.startMessageChat);
-        ImageView btn_startPhoneCall = (ImageView) findViewById(R.id.startPhoneCall);
-
+        setAdapter(LConstants.contacts);
 
         contactList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                logger.info("________________setOnItemClickListener,{}",view.toString());
+                logger.info("________________setOnItemClickListener,{}", view.toString());
 
-                Toast.makeText(getActivity(),view.toString(),Toast.LENGTH_LONG);
+                Toast.makeText(getActivity(), view.toString(), Toast.LENGTH_LONG);
 
             }
         });
-
-        logger.info("______________________________onActivityCreated,{}",btn_startMessageChat);
-
-
-//        btn_startMessageChat.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                v.getParent();
-//
-//
-//
-//
-//            }
-//        });
-
-
-
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        if (view == null){
+        if (view == null) {
             view = inflater.inflate(R.layout.fragment_contact, container, false);
         }
         return view;
@@ -97,7 +72,7 @@ public class ContactFragment extends Fragment {
     private ContactAdapter adapter;
     private ListView contactList;
     private List<B_Contact> list;
-//    private AsyncQueryHandler asyncQueryHandler; // 异步查询数据库类对象
+    //    private AsyncQueryHandler asyncQueryHandler; // 异步查询数据库类对象
     private QuickAlphabeticBar alphabeticBar; // 快速索引条
 
 //    private Map<Integer, B_Contact> contactIdMap = null;
@@ -120,24 +95,8 @@ public class ContactFragment extends Fragment {
 //
 //    }
 
-    private void init(){
-        LMClient client = LConstants.client;
-
-        try {
-           List<B_Contact> contacts = client.getContactListByUserID(LConstants.clientSession);
-
-setAdapter(contacts);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     /**
-     *
      * @author Administrator
-     *
      */
 //    private class MyAsyncQueryHandler extends AsyncQueryHandler {
 //
@@ -184,7 +143,6 @@ setAdapter(contacts);
 //        }
 //
 //    }
-
     private void setAdapter(List<B_Contact> list) {
         adapter = new ContactAdapter(getActivity(), list, alphabeticBar);
         contactList.setAdapter(adapter);

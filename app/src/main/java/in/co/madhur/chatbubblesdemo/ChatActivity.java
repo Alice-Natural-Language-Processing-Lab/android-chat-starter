@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -17,22 +19,19 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.plugin.jms.TextByteMessage;
-import com.gifisan.nio.plugin.jms.JMSException;
-import com.gifisan.nio.plugin.jms.client.MessageProducer;
+import com.likemessage.bean.B_Contact;
+import com.likemessage.bean.T_MESSAGE;
+import com.likemessage.client.LMClient;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
-import com.likemessage.database.LMessage;
 import com.likemessage.network.MessageReceiver;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import in.co.madhur.chatbubblesdemo.model.ChatMessage;
 import in.co.madhur.chatbubblesdemo.widgets.Emoji;
 import in.co.madhur.chatbubblesdemo.widgets.EmojiView;
 import in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout;
@@ -42,7 +41,7 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
     private ListView chatListView;
     private EditText chatEditText1;
-    private ArrayList<ChatMessage> chatList;
+    private List<T_MESSAGE> chatList;
     private ImageView enterChatView1, emojiButton;
     private ChatListAdapter chatListAdapter;
     private EmojiView emojiView;
@@ -52,7 +51,21 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
     private boolean keyboardVisible;
     private WindowManager.LayoutParams windowLayoutParams;
     private Logger logger = LoggerFactory.getLogger(ChatActivity.class);
-    private String phoneNO = null;
+    private Integer toUserID = null;
+
+    private Handler update = new Handler() {
+
+        public void handleMessage(Message msg) {
+
+            chatListAdapter.notifyDataSetChanged();
+
+            super.handleMessage(msg);
+        }
+    };
+
+    public void notifyDataSetChanged() {
+        update.sendEmptyMessage(0);
+    }
 
     /* ---------------------------------    ------------------------------*/
 
@@ -69,9 +82,8 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
                 EditText editText = (EditText) v;
 
-                if(v==chatEditText1)
-                {
-                    sendMessage(editText.getText().toString(),phoneNO);
+                if (v == chatEditText1) {
+                    sendMessage(editText.getText().toString(), toUserID);
                 }
 
                 chatEditText1.setText("");
@@ -87,9 +99,8 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
         @Override
         public void onClick(View v) {
 
-            if(v==enterChatView1)
-            {
-                sendMessage(chatEditText1.getText().toString(),phoneNO);
+            if (v == enterChatView1) {
+                sendMessage(chatEditText1.getText().toString(), toUserID);
             }
 
             chatEditText1.setText("");
@@ -114,14 +125,13 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
         @Override
         public void afterTextChanged(Editable editable) {
-            if(editable.length()==0){
+            if (editable.length() == 0) {
                 enterChatView1.setImageResource(R.drawable.ic_chat_send);
-            }else{
+            } else {
                 enterChatView1.setImageResource(R.drawable.ic_chat_send_active);
             }
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,13 +140,13 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
         Intent intent = getIntent();
 
-        this.phoneNO = (String)intent.getCharSequenceExtra("phoneNO");
+        this.toUserID = (Integer) intent.getIntExtra("toUserID", -1);
 
-        logger.info("___________________________,onCreate,{}",phoneNO);
+        logger.info("___________________________,onCreate,{}", toUserID);
 
         AndroidUtilities.statusBarHeight = getStatusBarHeight();
 
-        chatList = new ArrayList<ChatMessage>();
+        chatList = loadMsg(toUserID);
 
         chatListView = (ListView) findViewById(R.id.chat_list_view);
 
@@ -152,7 +162,7 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
             }
         });
 
-        emojiButton = (ImageView)findViewById(R.id.emojiButton);
+        emojiButton = (ImageView) findViewById(R.id.emojiButton);
 
         emojiButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,7 +171,9 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
             }
         });
 
-        chatListAdapter = new ChatListAdapter(getActivity(),chatListView,chatList);
+        chatListAdapter = new ChatListAdapter(getActivity(), chatListView, chatList);
+
+        chatListAdapter.setChatUserID(toUserID);
 
         chatListView.setAdapter(chatListAdapter);
 
@@ -176,60 +188,65 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
         MessageReceiver.getInstance().setChatListView(chatListView);
 
-        loadMsg(phoneNO);
-
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
-    }
 
-    private void loadMsg(String phoneNO){
-
-        chatListAdapter.setChatNO(phoneNO);
-        List<LMessage> chats = DBUtil.getDbUtil().findChat(phoneNO);
-        for(LMessage lMessage:chats){
-
-            ChatMessage message = new ChatMessage();
-
-            message.setSend(lMessage.isSend() == 1);
-            message.setMessageText(lMessage.getMessage());
-            message.setMessageTime(lMessage.getMsgDate());
-            chatList.add(message);
-        }
+        MessageReceiver.getInstance().setChatActivity(this);
 
         ChatActivity.this.runOnUiThread(new Runnable() {
             public void run() {
                 chatListAdapter.notifyDataSetChanged();
-
-//                chatListView.setSelection(chatListAdapter.getCount() - 1);
             }
         });
-
     }
 
-    private void sendMessage(final String messageText,final String toPhoneNO)
-    {
-        if(messageText.trim().length()==0)
+    private List<T_MESSAGE> loadMsg(Integer toUserID) {
+        return DBUtil.getDbUtil().findChat(toUserID);
+    }
+
+    private void sendMessage(final String messageText, final Integer toUserID) {
+        if (messageText.trim().length() == 0)
             return;
 
-        final ChatMessage message = new ChatMessage();
-        message.setMessageText(messageText);
+        final B_Contact contact = LConstants.getBContactByUserID(toUserID);
+
+        final T_MESSAGE message = new T_MESSAGE();
+        message.setDeleted(false);
+        message.setFromUserID(LConstants.THIS_USER_ID);
+        message.setMessage(messageText);
+        message.setMsgDate(new Date().getTime());
+        message.setMsgType(0);
         message.setSend(true);
-        message.setMessageTime(new Date().getTime());
+        message.setToUserID(toUserID);
         chatListAdapter.addChat(message);
+        notifyDataSetChanged();
 
         LConstants.uniqueThread.execute(new Runnable() {
             @Override
             public void run() {
 
-                MessageProducer messageProducer = LConstants.messageProducer;
 
-                logger.info("________________sendMessage,producer:{}",messageProducer);
+//                MessageProducer messageProducer = LConstants.messageProducer;
+//
+//                MapByteMessage _message = new MapByteMessage("mmm",contact.getUUID(),messageText.getBytes(Encoding.UTF8));
+//
+//                _message.put("eventName","lMessage");
+//                _message.put("fromUserID",message.getFromUserID());
 
-                TextByteMessage _message = new TextByteMessage("mmm",toPhoneNO,"=====",messageText.getBytes(Encoding.UTF8));
                 try {
-                    if(messageProducer.offer(_message)){
-                        DBUtil.getDbUtil().saveMsg(message,LConstants.THIS_USER_NAME,toPhoneNO);
+
+//                    logger.info("________________sendMessage,message:{}",_message);
+//                    if(messageProducer.offer(_message)){
+//                        DBUtil.getDbUtil().saveMsg(message);
+//                    }
+
+                    LMClient client = LConstants.client;
+                    logger.info("________________________________toUserID:{}",toUserID);
+                    logger.info("________________sendMessage,message:{}",message);
+                    logger.info("________________sendMessage,contact:{}",contact);
+                    if (client.addMessage(LConstants.clientSession, message, contact.getUUID())) {
+                        DBUtil.getDbUtil().saveMsg(message);
                     }
-                } catch (JMSException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -268,8 +285,7 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 */
     }
 
-    private Activity getActivity()
-    {
+    private Activity getActivity() {
         return this;
     }
 
@@ -357,8 +373,7 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
                 return;
             }
 
-        }
-        else {
+        } else {
             removeEmojiWindow();
             if (sizeNotifierRelativeLayout != null) {
                 sizeNotifierRelativeLayout.post(new Runnable() {
@@ -393,7 +408,6 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
     }
 
 
-
     /**
      * Hides the emoji popup
      */
@@ -411,7 +425,6 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
     public boolean isEmojiPopupShowing() {
         return showingEmoji;
     }
-
 
 
     /**
@@ -495,6 +508,7 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
     /**
      * Get the system status bar height
+     *
      * @return
      */
     public int getStatusBarHeight() {

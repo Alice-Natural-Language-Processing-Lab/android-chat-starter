@@ -2,6 +2,7 @@ package com.likemessage.common;
 
 import android.content.Context;
 
+import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.Logger;
@@ -10,9 +11,13 @@ import com.gifisan.nio.common.UniqueThread;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageProducer;
 import com.gifisan.nio.plugin.jms.client.impl.FixedMessageConsumer;
+import com.likemessage.bean.B_Contact;
 import com.likemessage.client.LMClient;
 import com.likemessage.database.DBUtil;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -32,13 +37,13 @@ public class LConstants {
 
     public static LMClient client = new LMClient();
 
-//    public static ClientTCPConnector connector = new ClientTCPConnector("wkapp.wicp.net",11990,"M");
+    public static HashMap<String,B_Contact> contactUUIDHashMap = new HashMap<String, B_Contact>();
 
-//    public static ClientTCPConnector connector = new ClientTCPConnector("10.0.2.2",18900,"M");
+    public static HashMap<Integer,B_Contact> contactUserIDHashMap = new HashMap<Integer, B_Contact>();
 
-    public static ClientTCPConnector connector = new ClientTCPConnector("192.168.191.1", 18900, "M");
+    public static List<B_Contact> contacts = new ArrayList<B_Contact>();
 
-//    public static ClientTCPConnector connector = new ClientTCPConnector("192.168.1.48", 8300, "M");
+    public static ClientTCPConnector connector = null;
 
     public static ClientSession clientSession = null;
 
@@ -51,6 +56,12 @@ public class LConstants {
     private static Logger logger = LoggerFactory.getLogger(LConstants.class);
 
     public static void init(Context context) {
+        Encoding.DEFAULT = Encoding.UTF8;
+
+//        connector = new ClientTCPConnector("10.0.2.2",18900,"M");
+//        connector = new ClientTCPConnector("wkapp.wicp.net",11990,"M");
+        connector = new ClientTCPConnector("192.168.191.1", 18900, "M");
+//        connector = new ClientTCPConnector("192.168.1.48", 8300, "M");
 
         if (inited.compareAndSet(false, true)) {
 
@@ -89,6 +100,14 @@ public class LConstants {
                 }
             });
         }
+    }
+
+    public static B_Contact getBContactByUUID(String uuid){
+        return contactUUIDHashMap.get(uuid);
+    }
+
+    public static B_Contact getBContactByUserID(Integer userID){
+        return contactUserIDHashMap.get(userID);
     }
 
 }

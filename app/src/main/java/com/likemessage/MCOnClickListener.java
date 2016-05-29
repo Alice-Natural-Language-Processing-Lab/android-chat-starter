@@ -6,7 +6,6 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.view.View;
-import android.widget.Toast;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -70,14 +69,14 @@ public class MCOnClickListener implements View.OnClickListener {
         if (!to.isAdded()) {
             // 隐藏当前的fragment，add下一个到Activity中
             transaction.hide(from).add(R.id.fragment_wrapper, to).commit();
-            Toast.makeText(mContext, "运行了", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(mContext, "运行了", Toast.LENGTH_SHORT).show();
         } else {
             // 隐藏当前的fragment，显示下一个
             transaction.hide(from).show(to).commit();
-            Toast.makeText(mContext, "没运行了", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(mContext, "没运行了", Toast.LENGTH_SHORT).show();
         }
         // 让menu回去
-        Toast.makeText(mContext, "..........", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(mContext, "..........", Toast.LENGTH_SHORT).show();
 
         this.from = to;
     }

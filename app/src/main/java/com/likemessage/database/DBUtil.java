@@ -4,10 +4,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.likemessage.bean.T_MESSAGE;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import in.co.madhur.chatbubblesdemo.model.ChatMessage;
 
 /**
  * Created by wangkai on 2016/4/13.
@@ -30,10 +30,10 @@ public class DBUtil {
         this.dbOpenHelper = new DBOpenHelper(context, "dbtest.db", null, 1);
     }
 
-    public void save(LMessage message) {// 插入记录
+    public void save(T_MESSAGE message) {// 插入记录
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();// 取得数据库操作
-        db.execSQL("insert into t_message (fromNo,toNo,msgDate,message,lmID,isSend,deleted) values(?,?,?,?,?,?,?)",
-                new Object[] { message.getFromNo(), message.getToNo(),message.getMsgDate(),message.getMessage(),message.getLmID(),message.isSend(),0 });
+        db.execSQL("insert into t_message (toUserID,fromUserID,msgDate,msgType,message,isSend,deleted) values(?,?,?,?,?,?,?)",
+                new Object[] { message.getToUserID(), message.getFromUserID(),message.getMsgDate(),message.getMsgType(),message.getMessage(),message.isSend() ? 1 : 0,0 });
         db.close();// 记得关闭数据库操作
     }
 
@@ -43,15 +43,15 @@ public class DBUtil {
         db.close();
     }
 
-    public void update(LMessage message) {// 修改纪录
+    public void update(T_MESSAGE message) {// 修改纪录
 //        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
 //        db.execSQL("update t_message set username=?,pass=? where" + " id=?", new Object[] { message.getUsername(), message.getPass(), message.getId() });
 //        db.close();
         throw new RuntimeException("update");
     }
 
-    public LMessage find(Integer id) {// 根据ID查找纪录
-        LMessage message = null;
+    public T_MESSAGE find(Integer id) {// 根据ID查找纪录
+        T_MESSAGE message = null;
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
         // 用游标Cursor接收从数据库检索到的数据
         Cursor cursor = db.rawQuery("select * from t_message where id=?", new String[] { id.toString() });
@@ -62,8 +62,8 @@ public class DBUtil {
         return message;
     }
 
-    public List<LMessage> findAll() {// 查询所有记录
-        List<LMessage> lists = new ArrayList<LMessage>();
+    public List<T_MESSAGE> findAll() {// 查询所有记录
+        List<T_MESSAGE> lists = new ArrayList<T_MESSAGE>();
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
         // Cursor cursor=db.rawQuery("select * from t_users limit ?,?", new
         // String[]{offset.toString(),maxLength.toString()});
@@ -71,23 +71,23 @@ public class DBUtil {
 
         Cursor cursor = db.rawQuery("select * from t_message ", null);
         while (cursor.moveToNext()) {
-            LMessage message = createLMessage(cursor);
+            T_MESSAGE message = createLMessage(cursor);
             lists.add(message);
         }
         db.close();
         return lists;
     }
 
-    private LMessage createLMessage(Cursor cursor){
-        LMessage message = new LMessage();
-        message.setId(cursor.getInt(cursor.getColumnIndex("id")));
-        message.setFromNo(cursor.getString(cursor.getColumnIndex("fromNo")));
-        message.setLmID(cursor.getString(cursor.getColumnIndex("lmID")));
-        message.setMessage(cursor.getString(cursor.getColumnIndex("message")));
+    private T_MESSAGE createLMessage(Cursor cursor){
+        T_MESSAGE message = new T_MESSAGE();
+        message.setMessageID(cursor.getInt(cursor.getColumnIndex("messageID")));
+        message.setToUserID(cursor.getInt(cursor.getColumnIndex("toUserID")));
+        message.setFromUserID(cursor.getInt(cursor.getColumnIndex("fromUserID")));
         message.setMsgDate(cursor.getLong(cursor.getColumnIndex("msgDate")));
-        message.setSend(cursor.getInt(cursor.getColumnIndex("isSend")));
-        message.setToNo(cursor.getString(cursor.getColumnIndex("toNo")));
-        message.setDeleted(cursor.getInt(cursor.getColumnIndex("deleted")));
+        message.setMsgType(cursor.getInt(cursor.getColumnIndex("msgType")));
+        message.setMessage(cursor.getString(cursor.getColumnIndex("message")));
+        message.setSend(cursor.getInt(cursor.getColumnIndex("isSend")) == 1);
+        message.setDeleted(cursor.getInt(cursor.getColumnIndex("deleted")) == 1);
         return message;
     }
 
@@ -100,41 +100,38 @@ public class DBUtil {
     }
 
 
-    public void saveMsg(ChatMessage message,String fromNo, String toNo){
-
-        LMessage lMessage = new LMessage();
-        lMessage.setFromNo(fromNo);
-        lMessage.setToNo(toNo);
-        lMessage.setSend(message.isSend() ? 1 : 0);
-        lMessage.setMsgDate(message.getMessageTime());
-        lMessage.setMessage(message.getMessageText());
-        lMessage.setLmID("none");
-        save(lMessage);
-
+    public void saveMsg(T_MESSAGE message){
+        save(message);
     }
 
 
-    public List<LMessage> findTop(Integer limit) {// 根据ID查找纪录
+    public List<T_MESSAGE> findTop() {
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
-        List<LMessage> lists = new ArrayList<LMessage>();
+        List<T_MESSAGE> lists = new ArrayList<T_MESSAGE>();
         // 用游标Cursor接收从数据库检索到的数据
-        Cursor cursor = db.rawQuery("select * from t_message order by msgDate desc limit 0,?", new String[] { limit.toString() });
+        Cursor cursor = db.rawQuery("select t.* from (" +
+                "select t1.messageID,t1.toUserID,t1.fromUserID,t1.msgDate,t1.msgType,t1.message,t1.isSend,t1.deleted from t_message t1 where t1.isSend = 1 " +
+                "union all " +
+                "select t2.messageID,t2.fromUserID as toUserID,t2.toUserID as fromUserID,t2.msgDate,t2.msgType,t2.message,t2.isSend,t2.deleted from t_message t2 where t2.isSend = 0 " +
+                ")t group by t.toUserID order by t.msgDate desc",null);
         while (cursor.moveToNext()) {
-            LMessage message = createLMessage(cursor);
+            T_MESSAGE message = createLMessage(cursor);
             lists.add(message);
         }
         db.close();
         return lists;
     }
 
-    public List<LMessage> findChat(String toNo){
+    public List<T_MESSAGE> findChat(Integer chatUserID){
+
+        String _chatUserID = String.valueOf(chatUserID);
 
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
-        List<LMessage> lists = new ArrayList<LMessage>();
+        List<T_MESSAGE> lists = new ArrayList<T_MESSAGE>();
         // 用游标Cursor接收从数据库检索到的数据
-        Cursor cursor = db.rawQuery("select * from t_message where toNo = ? or fromNo = ?", new String[] { toNo,toNo });
+        Cursor cursor = db.rawQuery("select * from t_message where toUserID = ? or fromUserID = ?", new String[] { _chatUserID,_chatUserID });
         while (cursor.moveToNext()) {
-            LMessage message = createLMessage(cursor);
+            T_MESSAGE message = createLMessage(cursor);
             lists.add(message);
         }
         db.close();

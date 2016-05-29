@@ -12,11 +12,10 @@ import android.widget.ListView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.database.DBUtil;
-import com.likemessage.database.LMessage;
 import com.likemessage.network.MessageReceiver;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import in.co.madhur.chatbubblesdemo.ChatActivity;
@@ -34,6 +33,10 @@ public class MessageFragment extends Fragment {
     private ListView messageListView;
 
     private MessageListAdpter messageListAdaptor;
+
+    public MessageListAdpter getMessageListAdaptor(){
+        return messageListAdaptor;
+    }
 
     public MessageFragment() {
     }
@@ -55,9 +58,11 @@ public class MessageFragment extends Fragment {
         messageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 MessageListAdpter adapter = (MessageListAdpter) adapterView.getAdapter();
-                MessageBean messageBean = adapter.getItem(i);
+                T_MESSAGE messageBean = adapter.getItem(i);
                 Intent intent = new Intent(activity,ChatActivity.class);
-                intent.putExtra("phoneNO", messageBean.getPhoneNO());
+                Integer toUserID =  messageBean.isSend() ? messageBean.getToUserID() : messageBean.getFromUserID();
+                toUserID = messageBean.getToUserID();
+                intent.putExtra("toUserID",toUserID);
                 startActivityForResult(intent, 1);
             }
         });
@@ -86,17 +91,8 @@ public class MessageFragment extends Fragment {
         return view;
     }
 
-    private ArrayList<MessageBean> mlist() {
-        ArrayList<MessageBean> list = new ArrayList<MessageBean>();
-        List<LMessage> lists1 = DBUtil.getDbUtil().findTop(1);
-        if (lists1.size() > 0){
-            LMessage lMessage = lists1.get(0);
-            MessageBean messageBean = new MessageBean();
-            messageBean.setName(lMessage.getToNo());
-            messageBean.setMessage(lMessage.getMessage());
-            messageBean.setPhoneNO(lMessage.getFromNo());
-            list.add(messageBean);
-        }
+    private List<T_MESSAGE> mlist() {
+        List<T_MESSAGE> list = DBUtil.getDbUtil().findTop();
         return list;
     };
 }

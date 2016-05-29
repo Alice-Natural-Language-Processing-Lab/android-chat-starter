@@ -9,10 +9,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import com.likemessage.bean.T_MESSAGE;
 
-import in.co.madhur.chatbubblesdemo.model.ChatMessage;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
 import in.co.madhur.chatbubblesdemo.widgets.Emoji;
 
 /**
@@ -22,18 +23,18 @@ public class ChatListAdapter extends BaseAdapter {
 
 
     private ListView chatListView = null;
-    private ArrayList<ChatMessage> chatList;
+    private List<T_MESSAGE> chatList;
     private Context context;
     public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH:mm");
-    private String chatNO = null;
+    private Integer chatUserID = null;
 
-    public ChatListAdapter(Context context,ListView chatListView,ArrayList<ChatMessage> chatList) {
+    public ChatListAdapter(Context context,ListView chatListView,List<T_MESSAGE> chatList) {
         this.chatListView = chatListView;
         this.chatList = chatList;
         this.context = context;
     }
 
-    public ArrayList<ChatMessage> getChatList(){
+    public List<T_MESSAGE> getChatList(){
         return chatList;
     }
 
@@ -55,7 +56,7 @@ public class ChatListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = null;
-        ChatMessage message = chatList.get(position);
+        T_MESSAGE message = chatList.get(position);
         ViewHolder1 holder1;
         ViewHolder2 holder2;
 
@@ -77,9 +78,9 @@ public class ChatListAdapter extends BaseAdapter {
 
             }
 
-            holder2.messageTextView.setText(Emoji.replaceEmoji(message.getMessageText(), holder2.messageTextView.getPaint().getFontMetricsInt(), AndroidUtilities.dp(16) ));
+            holder2.messageTextView.setText(Emoji.replaceEmoji(message.getMessage(), holder2.messageTextView.getPaint().getFontMetricsInt(), AndroidUtilities.dp(16) ));
             //holder2.messageTextView.setText(message.getMessageText());
-            holder2.timeTextView.setText(SIMPLE_DATE_FORMAT.format(message.getMessageTime()));
+            holder2.timeTextView.setText(SIMPLE_DATE_FORMAT.format(message.getMsgDate()));
 
 //            if (message.getMessageStatus() == Status.DELIVERED) {
 //                holder2.messageStatus.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_double_tick));
@@ -103,8 +104,8 @@ public class ChatListAdapter extends BaseAdapter {
 
             }
 
-            holder1.messageTextView.setText(Emoji.replaceEmoji(message.getMessageText(), holder1.messageTextView.getPaint().getFontMetricsInt(), AndroidUtilities.dp(16)));
-            holder1.timeTextView.setText(SIMPLE_DATE_FORMAT.format(message.getMessageTime()));
+            holder1.messageTextView.setText(Emoji.replaceEmoji(message.getMessage(), holder1.messageTextView.getPaint().getFontMetricsInt(), AndroidUtilities.dp(16)));
+            holder1.timeTextView.setText(SIMPLE_DATE_FORMAT.format(message.getMsgDate()));
         }
         return v;
     }
@@ -116,17 +117,17 @@ public class ChatListAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        ChatMessage message = chatList.get(position);
+        T_MESSAGE message = chatList.get(position);
         return message.isSend() ? 0 :1;
         //FIXME .............
     }
 
-    public String getChatNO() {
-        return chatNO;
+    public Integer getChatUserID() {
+        return chatUserID;
     }
 
-    public void setChatNO(String chatNO) {
-        this.chatNO = chatNO;
+    public void setChatUserID(Integer chatUserID) {
+        this.chatUserID = chatUserID;
     }
 
     private class ViewHolder1 {
@@ -140,9 +141,8 @@ public class ChatListAdapter extends BaseAdapter {
         public TextView timeTextView;
     }
 
-    public void addChat(ChatMessage chatMessage){
+    public void addChat(T_MESSAGE chatMessage){
         this.chatList.add(chatMessage);
-        notifyDataSetChanged();
     }
 
     public void notifyDataSetChanged() {

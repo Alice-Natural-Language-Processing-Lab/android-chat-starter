@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.widget.LinearLayout;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.likemessage.contact.ContactFragment;
 import com.likemessage.message.MessageFragment;
+import com.likemessage.message.MessageListAdpter;
 import com.likemessage.network.MessageReceiver;
 
 import in.co.madhur.chatbubblesdemo.R;
@@ -17,6 +20,26 @@ import in.co.madhur.chatbubblesdemo.R;
 public class PhoneActivity extends Activity {
 
     private Logger logger = LoggerFactory.getLogger(PhoneActivity.class);
+
+    private  MessageFragment messageFragment = null;
+
+    private MessageListAdpter getMessageListAdpter(){
+            return messageFragment.getMessageListAdaptor();
+    }
+
+    private Handler update = new Handler(){
+
+        public void handleMessage(Message msg) {
+
+            getMessageListAdpter().notifyDataSetChanged();
+
+            super.handleMessage(msg);
+        }
+    };
+
+    public void notifyDataSetChanged(){
+        update.sendEmptyMessage(0);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +67,9 @@ public class PhoneActivity extends Activity {
         btn_message.setOnClickListener(mcOnClickListener);
         btn_contact.setOnClickListener(mcOnClickListener);
 
-
         receiveMsg();
+
+        MessageReceiver.getInstance().setPhoneActivity(this);
     }
 
     private void receiveMsg(){

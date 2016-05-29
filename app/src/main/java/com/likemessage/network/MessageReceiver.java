@@ -2,25 +2,26 @@ package com.likemessage.network;
 
 import android.widget.ListView;
 
-import com.gifisan.nio.Encoding;
+import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.plugin.jms.MapByteMessage;
+import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.client.impl.FixedMessageConsumer;
 import com.gifisan.nio.plugin.jms.client.impl.OnMappedMessage;
 import com.likemessage.PhoneActivity;
+import com.likemessage.bean.B_Contact;
+import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
-import com.likemessage.message.MessageBean;
 import com.likemessage.message.MessageListAdpter;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import in.co.madhur.chatbubblesdemo.ChatActivity;
 import in.co.madhur.chatbubblesdemo.ChatListAdapter;
-import in.co.madhur.chatbubblesdemo.model.ChatMessage;
 
 /**
  * Created by wangkai on 2016/4/19.
@@ -52,11 +53,16 @@ public class MessageReceiver extends Thread {
 
     private ChatListAdapter chatListAdapter = null;
 
-    private ArrayList<ChatMessage> chatList = null;
+    private List<T_MESSAGE> chatList = null;
 
-    private ArrayList<MessageBean> messageList = null;
+    private List<T_MESSAGE> messageList = null;
+
+    private ChatActivity chatActivity = null;
+
+    private PhoneActivity phoneActivity = null;
 
     private MessageReceiver() {
+
     }
 
     public void setChatListView(ListView listView) {
@@ -82,41 +88,69 @@ public class MessageReceiver extends Thread {
         FixedMessageConsumer messageConsumer = LConstants.messageConsumer;
 
         messageConsumer.listen("lMessage", new OnMappedMessage() {
-            public void onReceive(MapByteMessage message) {
+            public void onReceive(MapMessage message) {
 
                 logger.info("========================MessageReceived:" + message.toString());
 
-                String messageText = new String(message.getByteArray(), Encoding.UTF8);
+                Integer fromUserID = message.getIntegerParameter("fromUserID");
 
-                final ChatMessage chatMessage = new ChatMessage();
-                chatMessage.setMessageText(messageText);
-                chatMessage.setSend(false);
-                chatMessage.setMessageTime(new Date().getTime());
+                B_Contact contact = LConstants.getBContactByUserID(fromUserID);
 
-                String fromNO = message.getQueueName();
+                logger.info("_______________________contact:{}", JSONObject.toJSON(contact));
+
+                final T_MESSAGE tMessage = new T_MESSAGE();
+
+                tMessage.setToUserID(LConstants.THIS_USER_ID);
+                tMessage.setFromUserID(fromUserID);
+                tMessage.setMsgDate(message.getTimestamp());
+                tMessage.setMsgType(0);
+                tMessage.setMessage(message.getParameter("message"));
+                tMessage.setSend(false);
+                tMessage.setDeleted(false);
 
                 if (chatListAdapter != null) {
 
-                    String chatNO = chatListAdapter.getChatNO();
+                    Integer toUserID = chatListAdapter.getChatUserID();
 
-                    logger.info("___________________________chatNO,{}", chatNO);
+                    logger.info("___________________________chat_user,{}", contact.getBackupName());
 
-                    if (fromNO.equals(chatListAdapter.getChatNO())) {
-                        chatListAdapter.addChat(chatMessage);
+                    if (fromUserID == toUserID) {
+                        chatListAdapter.addChat(tMessage);
+                        chatActivity.notifyDataSetChanged();
                     }
                 }
 
                 if (messageListAdpter != null) {
-
+                    //phoneActivity.notifyDataSetChanged();
                     //TODO add to messageList
                 }
 
-
-                DBUtil.getDbUtil().saveMsg(chatMessage, fromNO, LConstants.THIS_USER_NAME);
+                DBUtil.getDbUtil().saveMsg(tMessage);
             }
         });
+
+        try {
+            messageConsumer.receive(null);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
 
     }
 
 
+    public ChatActivity getChatActivity() {
+        return chatActivity;
+    }
+
+    public void setChatActivity(ChatActivity chatActivity) {
+        this.chatActivity = chatActivity;
+    }
+
+    public PhoneActivity getPhoneActivity() {
+        return phoneActivity;
+    }
+
+    public void setPhoneActivity(PhoneActivity phoneActivity) {
+        this.phoneActivity = phoneActivity;
+    }
 }

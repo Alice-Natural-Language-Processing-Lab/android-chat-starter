@@ -8,7 +8,11 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.likemessage.bean.B_Contact;
+import com.likemessage.bean.T_MESSAGE;
+import com.likemessage.common.LConstants;
+
+import java.util.List;
 
 import in.co.madhur.chatbubblesdemo.R;
 
@@ -17,16 +21,16 @@ public class MessageListAdpter extends BaseAdapter {
 	private Context context;
 	private ListView messageListView;
 	private LayoutInflater inflater;
-	private ArrayList<MessageBean> messageList;
+	private List<T_MESSAGE> messageList;
 
-	public MessageListAdpter(Context mc,ListView messageListView,ArrayList<MessageBean> messageList) {
+	public MessageListAdpter(Context mc,ListView messageListView,List<T_MESSAGE> messageList) {
 		this.messageListView = messageListView;
 		this.context = mc;
 		this.messageList = messageList;
 		inflater = LayoutInflater.from(context);
 	}
 
-	public ArrayList<MessageBean> getMessageList(){
+	public List<T_MESSAGE> getMessageList(){
 		return messageList;
 	}
 
@@ -36,7 +40,7 @@ public class MessageListAdpter extends BaseAdapter {
 	}
 
 	@Override
-	public MessageBean getItem(int position) {
+	public T_MESSAGE getItem(int position) {
 		return messageList.get(position);
 	}
 
@@ -58,13 +62,21 @@ public class MessageListAdpter extends BaseAdapter {
 			holder = (MessageHolder) convertView.getTag();
 		}
 
-		holder.name.setText(messageList.get(position).getName());
-		holder.message.setText(messageList.get(position).getMessage());
+		T_MESSAGE message = messageList.get(position);
+
+		Integer userID = message.isSend() ? message.getToUserID() : message.getFromUserID();
+
+		userID = message.getToUserID();
+
+		B_Contact contact = LConstants.getBContactByUserID(userID);
+
+		holder.name.setText(contact.getBackupName());
+		holder.message.setText(message.getMessage());
 
 		return convertView;
 	}
 
-	public void addMessage(MessageBean messageBean) {
+	public void addMessage(T_MESSAGE messageBean) {
 		this.messageList.add(messageBean);
 		notifyDataSetChanged();
 	}

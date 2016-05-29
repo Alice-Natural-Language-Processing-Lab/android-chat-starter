@@ -43,7 +43,10 @@ public class ContactAdapter extends BaseAdapter {
 
 		for (int i = 0; i < list.size(); i++) {
 			// 得到字母
-			String name = getAlpha(list.get(i).getSortKey());
+
+			B_Contact contact = list.get(i);
+
+			String name = getAlpha(contact.getSortKey());
 			if (!alphaIndexer.containsKey(name)) {
 				alphaIndexer.put(name, i);
 			}
@@ -87,8 +90,8 @@ public class ContactAdapter extends BaseAdapter {
 			holder.contact_header = (ImageView) convertView
 					.findViewById(R.id.contact_header);
 			holder.alpha = (TextView) convertView.findViewById(R.id.alpha);
-			holder.name = (TextView) convertView.findViewById(R.id.name);
-			holder.number = (TextView) convertView.findViewById(R.id.number);
+			holder.txt_backkupName = (TextView) convertView.findViewById(R.id.txt_backupName);
+			holder.txt_nickname = (TextView) convertView.findViewById(R.id.txt_nickname);
 			holder.startMessageChat = (ImageView) convertView.findViewById(R.id.startMessageChat);
 			holder.startPhoneCall = (ImageView) convertView.findViewById(R.id.startPhoneCall);
 			convertView.setTag(holder);
@@ -99,8 +102,9 @@ public class ContactAdapter extends BaseAdapter {
 		B_Contact contact = list.get(position);
 		String backupName = contact.getBackupName();
 		String nickname = contact.getNickname();
-		holder.name.setText(backupName);
-		holder.number.setText(nickname);
+		holder.txt_backkupName.setText(backupName);
+		holder.txt_nickname.setText(nickname);
+		holder.userID = contact.getUserID();
 		//好像是打开手机号码名片
 //		holder.quickContactBadge.assignContactUri(ContactsContract.Contacts.getLookupUri(
 //				contact.getContactId(), contact.getLookUpKey()));
@@ -138,15 +142,12 @@ public class ContactAdapter extends BaseAdapter {
 				logger.info("___________________v:{}",view);
 				logger.info("____________________tag:{}",holder1);
 
-				String phoneNO = "";
-				if (holder1 != null){
-					phoneNO = holder1.number.getText().toString();
-				}
+				Integer toUserID = holder1.userID;
 
-				logger.info("__________________________________phoneNO:{}",phoneNO);
+				logger.info("__________________________________toUserID:{}",toUserID);
 
 				Intent intent = new Intent(activity,ChatActivity.class);
-				intent.putExtra("phoneNO", phoneNO);
+				intent.putExtra("toUserID", toUserID);
 				activity.startActivityForResult(intent, 1);
 
 				logger.info("__________________________________message chat:{}",view);
@@ -169,10 +170,11 @@ public class ContactAdapter extends BaseAdapter {
 	private static class ViewHolder {
 		ImageView contact_header;
 		TextView alpha;
-		TextView name;
-		TextView number;
+		TextView txt_backkupName;
+		TextView txt_nickname;
 		ImageView startMessageChat;
 		ImageView startPhoneCall;
+		Integer userID;
 	}
 
 	/**
@@ -197,6 +199,5 @@ public class ContactAdapter extends BaseAdapter {
 			return "#";
 		}
 	}
-
 }
 
