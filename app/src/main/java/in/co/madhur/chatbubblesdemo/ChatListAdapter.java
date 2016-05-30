@@ -25,7 +25,7 @@ public class ChatListAdapter extends BaseAdapter {
     private ListView chatListView = null;
     private List<T_MESSAGE> chatList;
     private Context context;
-    public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH:mm");
+    public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd-HH:mm");
     private Integer chatUserID = null;
 
     public ChatListAdapter(Context context,ListView chatListView,List<T_MESSAGE> chatList) {
@@ -62,7 +62,7 @@ public class ChatListAdapter extends BaseAdapter {
 
         if (message.isSend()) {
             if (convertView == null) {
-                v = LayoutInflater.from(context).inflate(R.layout.chat_user2_item, null, false);
+                v = LayoutInflater.from(context).inflate(R.layout.chat_user_from_item, null, false);
 
                 holder2 = new ViewHolder2();
 
@@ -90,7 +90,7 @@ public class ChatListAdapter extends BaseAdapter {
 //            }
         } else {
             if (convertView == null) {
-                v = LayoutInflater.from(context).inflate(R.layout.chat_user1_item, null, false);
+                v = LayoutInflater.from(context).inflate(R.layout.chat_user_to_item, null, false);
                 holder1 = new ViewHolder1();
 
 

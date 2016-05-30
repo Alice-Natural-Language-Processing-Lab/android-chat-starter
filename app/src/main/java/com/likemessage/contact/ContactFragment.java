@@ -7,10 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.PhoneActivity;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.common.LConstants;
 
@@ -27,6 +27,8 @@ public class ContactFragment extends Fragment {
 
     private View view = null;
 
+    private PhoneActivity activity;
+
     public ContactFragment() {
     }
 
@@ -34,6 +36,10 @@ public class ContactFragment extends Fragment {
         return getActivity().findViewById(id);
     }
 
+
+    public void setPhoneActivity(PhoneActivity activity){
+        this.activity = activity;
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -51,12 +57,8 @@ public class ContactFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
                 logger.info("________________setOnItemClickListener,{}", view.toString());
-
-                Toast.makeText(getActivity(), view.toString(), Toast.LENGTH_LONG);
-
             }
         });
-
     }
 
     @Override

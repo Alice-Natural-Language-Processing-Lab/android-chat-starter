@@ -54,7 +54,7 @@ public class DBUtil {
         T_MESSAGE message = null;
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
         // 用游标Cursor接收从数据库检索到的数据
-        Cursor cursor = db.rawQuery("select * from t_message where id=?", new String[] { id.toString() });
+        Cursor cursor = db.rawQuery("select * from t_message where id=? ", new String[] { id.toString() });
         if (cursor.moveToFirst()) {// 依次取出数据
             message = createLMessage(cursor);
         }
@@ -105,15 +105,40 @@ public class DBUtil {
     }
 
 
-    public List<T_MESSAGE> findTop() {
+    public List<T_MESSAGE> findTop(Integer userID) {
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
         List<T_MESSAGE> lists = new ArrayList<T_MESSAGE>();
         // 用游标Cursor接收从数据库检索到的数据
-        Cursor cursor = db.rawQuery("select t.* from (" +
-                "select t1.messageID,t1.toUserID,t1.fromUserID,t1.msgDate,t1.msgType,t1.message,t1.isSend,t1.deleted from t_message t1 where t1.isSend = 1 " +
-                "union all " +
-                "select t2.messageID,t2.fromUserID as toUserID,t2.toUserID as fromUserID,t2.msgDate,t2.msgType,t2.message,t2.isSend,t2.deleted from t_message t2 where t2.isSend = 0 " +
-                ")t group by t.toUserID order by t.msgDate desc",null);
+
+        final String sql = "select tt.*\n" +
+                "  from (select t.*\n" +
+                "          from (select t1.messageID,\n" +
+                "                       t1.toUserID,\n" +
+                "                       t1.fromUserID,\n" +
+                "                       t1.msgDate,\n" +
+                "                       t1.msgType,\n" +
+                "                       t1.message,\n" +
+                "                       t1.isSend,\n" +
+                "                       t1.deleted\n" +
+                "                  from t_message t1\n" +
+                "                 where t1.fromUserID = ?\n" +
+                "                union all\n" +
+                "                select t2.messageID,\n" +
+                "                       t2.fromUserID as toUserID,\n" +
+                "                       t2.toUserID   as fromUserID,\n" +
+                "                       t2.msgDate,\n" +
+                "                       t2.msgType,\n" +
+                "                       t2.message,\n" +
+                "                       t2.isSend,\n" +
+                "                       t2.deleted\n" +
+                "                  from t_message t2\n" +
+                "                 where t2.fromUserID <> ?) t\n" +
+                "         order by t.msgDate) tt\n" +
+                " group by tt.toUserID";
+
+        String userIDStr = String.valueOf(userID);
+
+        Cursor cursor = db.rawQuery(sql,new String[]{userIDStr,userIDStr});
         while (cursor.moveToNext()) {
             T_MESSAGE message = createLMessage(cursor);
             lists.add(message);
@@ -129,8 +154,9 @@ public class DBUtil {
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
         List<T_MESSAGE> lists = new ArrayList<T_MESSAGE>();
         // 用游标Cursor接收从数据库检索到的数据
-        Cursor cursor = db.rawQuery("select * from t_message where toUserID = ? or fromUserID = ?", new String[] { _chatUserID,_chatUserID });
-        while (cursor.moveToNext()) {
+        Cursor cursor = db.rawQuery("select * from t_message where toUserID = ? or fromUserID = ? order by msgDate desc limit 40 offset 0 ", new String[] { _chatUserID,_chatUserID });
+        cursor.moveToLast();
+        while (cursor.moveToPrevious()) {
             T_MESSAGE message = createLMessage(cursor);
             lists.add(message);
         }

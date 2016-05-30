@@ -7,12 +7,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.PhoneActivity;
 import com.likemessage.bean.T_MESSAGE;
+import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
 import com.likemessage.network.MessageReceiver;
 
@@ -30,15 +33,26 @@ public class MessageFragment extends Fragment {
 
     private View view = null;
 
+    private List<T_MESSAGE> messageList;
+
     private ListView messageListView;
 
     private MessageListAdpter messageListAdaptor;
+
+    private PhoneActivity activity = null;
 
     public MessageListAdpter getMessageListAdaptor(){
         return messageListAdaptor;
     }
 
-    public MessageFragment() {
+    public MessageFragment(){}
+
+    public void setPhoneActivity(PhoneActivity activity) {
+        this.activity = activity;
+    }
+
+    public List<T_MESSAGE> getMessageList() {
+        return messageList;
     }
 
     @Override
@@ -51,7 +65,9 @@ public class MessageFragment extends Fragment {
 
         messageListView = (ListView) findViewById(R.id.messageListView);
 
-        messageListAdaptor = new MessageListAdpter(activity,messageListView,mlist());
+        messageList = DBUtil.getDbUtil().findTop(LConstants.THIS_USER_ID);
+
+        messageListAdaptor = new MessageListAdpter(activity,messageListView,messageList);
 
         messageListView.setAdapter(messageListAdaptor);
 
@@ -64,6 +80,17 @@ public class MessageFragment extends Fragment {
                 toUserID = messageBean.getToUserID();
                 intent.putExtra("toUserID",toUserID);
                 startActivityForResult(intent, 1);
+            }
+        });
+
+        messageListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+                    logger.info("___________________________onScrollStateChanged:{}",i);
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+                logger.info("___________________________scroll:{},{},{}",new Object[]{i,i1,i2});
             }
         });
 
@@ -91,16 +118,22 @@ public class MessageFragment extends Fragment {
         return view;
     }
 
-    private List<T_MESSAGE> mlist() {
-        List<T_MESSAGE> list = DBUtil.getDbUtil().findTop();
-        return list;
-    };
-
     @Override
     public void onResume() {
         super.onResume();
 
-        logger.info("___________________________MessageFragment resume");
+        List<T_MESSAGE> messageList = DBUtil.getDbUtil().findTop(LConstants.THIS_USER_ID);
 
+        this.messageList.clear();
+
+        this.messageList.addAll(messageList);
+
+        this.activity.setBaseAdapter(messageListAdaptor);
+
+        this.activity.notifyDataSetChanged();
+
+        logger.info("___________________________MessageFragment resume");
     }
+
+
 }

@@ -60,7 +60,7 @@ public class LConstants {
 
 //        connector = new ClientTCPConnector("10.0.2.2",18900,"M");
 //        connector = new ClientTCPConnector("wkapp.wicp.net",11990,"M");
-        connector = new ClientTCPConnector("192.168.191.1", 18900, "M");
+        connector = new ClientTCPConnector("192.168.191.1", 8300, "M");
 //        connector = new ClientTCPConnector("192.168.1.48", 8300, "M");
 
         if (inited.compareAndSet(false, true)) {

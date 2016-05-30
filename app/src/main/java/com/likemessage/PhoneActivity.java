@@ -6,13 +6,13 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.likemessage.contact.ContactFragment;
 import com.likemessage.message.MessageFragment;
-import com.likemessage.message.MessageListAdpter;
 import com.likemessage.network.MessageReceiver;
 
 import in.co.madhur.chatbubblesdemo.R;
@@ -21,17 +21,19 @@ public class PhoneActivity extends Activity {
 
     private Logger logger = LoggerFactory.getLogger(PhoneActivity.class);
 
-    private  MessageFragment messageFragment = null;
+    private BaseAdapter baseAdapter = null;
 
-    private MessageListAdpter getMessageListAdpter(){
-            return messageFragment.getMessageListAdaptor();
+    public void setBaseAdapter(BaseAdapter baseAdapter){
+        this.baseAdapter = baseAdapter;
     }
 
     private Handler update = new Handler(){
 
         public void handleMessage(Message msg) {
 
-            getMessageListAdpter().notifyDataSetChanged();
+            if (baseAdapter != null){
+                baseAdapter.notifyDataSetChanged();
+            }
 
             super.handleMessage(msg);
         }
@@ -52,6 +54,9 @@ public class PhoneActivity extends Activity {
 
         MessageFragment messageFragment = new MessageFragment();
         ContactFragment contactFragment = new ContactFragment();
+
+        messageFragment.setPhoneActivity(this);
+        contactFragment.setPhoneActivity(this);
 
         transaction.add(R.id.fragment_wrapper, messageFragment);
 

@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.common.LConstants;
@@ -22,6 +24,7 @@ public class MessageListAdpter extends BaseAdapter {
 	private ListView messageListView;
 	private LayoutInflater inflater;
 	private List<T_MESSAGE> messageList;
+	private Logger logger = LoggerFactory.getLogger(MessageListAdpter.class);
 
 	public MessageListAdpter(Context mc,ListView messageListView,List<T_MESSAGE> messageList) {
 		this.messageListView = messageListView;
@@ -68,7 +71,11 @@ public class MessageListAdpter extends BaseAdapter {
 
 		userID = message.getToUserID();
 
+		logger.info("_____________________toUserID:{}",userID);
+
 		B_Contact contact = LConstants.getBContactByUserID(userID);
+
+		logger.info("_____________________contact:{}",contact);
 
 		holder.name.setText(contact.getBackupName());
 		holder.message.setText(message.getMessage());

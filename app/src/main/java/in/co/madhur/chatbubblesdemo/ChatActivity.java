@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gifisan.nio.common.Logger;
@@ -203,6 +204,11 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
         B_Contact contact = LConstants.getBContactByUserID(toUserID);
 
         this.setTitle(contact.getBackupName());
+
+        TextView chat_with = (TextView) findViewById(R.id.txt_chat_with);
+
+        chat_with.setText(" < "+contact.getBackupName());
+
         logger.info("____________________title:{}",contact.getBackupName());
 
     }

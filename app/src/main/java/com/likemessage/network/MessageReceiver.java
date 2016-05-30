@@ -121,6 +121,9 @@ public class MessageReceiver extends Thread {
                 }
 
                 if (messageListAdpter != null) {
+
+
+
                     //phoneActivity.notifyDataSetChanged();
                     //TODO add to messageList
                 }
