@@ -95,4 +95,12 @@ public class MessageFragment extends Fragment {
         List<T_MESSAGE> list = DBUtil.getDbUtil().findTop();
         return list;
     };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        logger.info("___________________________MessageFragment resume");
+
+    }
 }

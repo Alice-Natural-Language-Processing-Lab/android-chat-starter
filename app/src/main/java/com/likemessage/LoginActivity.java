@@ -33,7 +33,15 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        ClientTCPConnector connector = LConstants.connector;
         final Activity activity = this;
+
+        if (connector != null && connector.isLogined()){
+                jump(activity);
+                return;
+        }
+
+
 
         final TextView txt_username = (TextView) findViewById(R.id.txt_username);
         final TextView txt_password = (TextView) findViewById(R.id.txt_password);
@@ -93,15 +101,22 @@ public class LoginActivity extends Activity {
                         return;
                     }
 
+                    jump(activity);
 
-                    Intent intent = new Intent(activity, PhoneActivity.class);
-                    intent.putExtra("test", "test");
-                    startActivityForResult(intent, 1);
                 } else {
                     logger.info("____________________________登录失败");
                     Toast.makeText(activity.getApplicationContext(), "登录失败", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private void jump(Activity activity){
+
+        Intent intent = new Intent(activity, PhoneActivity.class);
+        intent.putExtra("test", "test");
+        startActivityForResult(intent, 1);
+
+        activity.finish();
     }
 }

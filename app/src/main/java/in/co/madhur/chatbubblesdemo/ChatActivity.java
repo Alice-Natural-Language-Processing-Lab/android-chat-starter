@@ -18,9 +18,11 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.server.RESMessage;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.client.LMClient;
@@ -197,6 +199,12 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
                 chatListAdapter.notifyDataSetChanged();
             }
         });
+
+        B_Contact contact = LConstants.getBContactByUserID(toUserID);
+
+        this.setTitle(contact.getBackupName());
+        logger.info("____________________title:{}",contact.getBackupName());
+
     }
 
     private List<T_MESSAGE> loadMsg(Integer toUserID) {
@@ -243,8 +251,12 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
                     logger.info("________________________________toUserID:{}",toUserID);
                     logger.info("________________sendMessage,message:{}",message);
                     logger.info("________________sendMessage,contact:{}",contact);
-                    if (client.addMessage(LConstants.clientSession, message, contact.getUUID())) {
+
+                    RESMessage resMessage = client.addMessage(LConstants.clientSession, message, contact.getUUID());
+                    if (resMessage.getCode() == 0) {
                         DBUtil.getDbUtil().saveMsg(message);
+                    }else{
+                        Toast.makeText(getActivity(),resMessage.getDescription(),Toast.LENGTH_SHORT);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

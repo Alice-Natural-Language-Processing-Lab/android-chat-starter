@@ -76,4 +76,17 @@ public class PhoneActivity extends Activity {
         /*-------------------- receive message ----------------- */
         MessageReceiver.startReceive(this);
     }
+
+//    public boolean onKeyUp(int keyCode, KeyEvent event) {
+//
+//        if (keyCode == KeyEvent.KEYCODE_BACK){
+//
+//            show
+//
+//            return true;
+//        }
+//
+//
+//        return super.onKeyUp(keyCode, event);
+//    }
 }

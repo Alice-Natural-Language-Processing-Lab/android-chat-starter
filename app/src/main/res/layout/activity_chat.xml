@@ -6,7 +6,24 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@drawable/background"
     tools:context=".ChatActivity">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="26dp"
+        android:background="@android:color/holo_orange_light" >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="2dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="与TA的聊天"
+            android:id="@+id/txt_chat_with" />
+    </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/holo_orange_dark" >
+    </LinearLayout>
 
     <ListView
         android:id="@+id/chat_list_view"
