@@ -147,14 +147,16 @@ public class DBUtil {
         return lists;
     }
 
-    public List<T_MESSAGE> findChat(Integer chatUserID){
+    public List<T_MESSAGE> findChat(Integer chatUserID,int limit,int offset){
 
         String _chatUserID = String.valueOf(chatUserID);
+        String _limit = String.valueOf(limit);
+        String _offset = String.valueOf(offset);
 
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
         List<T_MESSAGE> lists = new ArrayList<T_MESSAGE>();
         // 用游标Cursor接收从数据库检索到的数据
-        Cursor cursor = db.rawQuery("select * from t_message where toUserID = ? or fromUserID = ? order by msgDate desc limit 40 offset 0 ", new String[] { _chatUserID,_chatUserID });
+        Cursor cursor = db.rawQuery("select * from t_message where toUserID = ? or fromUserID = ? order by msgDate desc limit ? offset ? ", new String[] { _chatUserID,_chatUserID,_limit,_offset });
         cursor.moveToLast();
         while (cursor.moveToPrevious()) {
             T_MESSAGE message = createLMessage(cursor);

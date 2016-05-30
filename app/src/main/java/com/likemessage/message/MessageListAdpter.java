@@ -1,17 +1,17 @@
 package com.likemessage.message;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.PhoneActivity;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_MESSAGE;
+import com.likemessage.common.BaseAdapter;
 import com.likemessage.common.LConstants;
 
 import java.util.List;
@@ -20,17 +20,17 @@ import in.co.madhur.chatbubblesdemo.R;
 
 public class MessageListAdpter extends BaseAdapter {
 
-	private Context context;
+	private PhoneActivity activity;
 	private ListView messageListView;
 	private LayoutInflater inflater;
 	private List<T_MESSAGE> messageList;
 	private Logger logger = LoggerFactory.getLogger(MessageListAdpter.class);
 
-	public MessageListAdpter(Context mc,ListView messageListView,List<T_MESSAGE> messageList) {
+	public MessageListAdpter(PhoneActivity activity,ListView messageListView,List<T_MESSAGE> messageList) {
 		this.messageListView = messageListView;
-		this.context = mc;
+		this.activity = activity;
 		this.messageList = messageList;
-		inflater = LayoutInflater.from(context);
+		inflater = LayoutInflater.from(this.activity);
 	}
 
 	public List<T_MESSAGE> getMessageList(){
@@ -93,8 +93,7 @@ public class MessageListAdpter extends BaseAdapter {
 		private TextView message;
 	}
 
-	public void notifyDataSetChanged() {
-		super.notifyDataSetChanged();
-		messageListView.setSelection(getCount()-1);
+	public ListView getListView() {
+		return messageListView;
 	}
 }

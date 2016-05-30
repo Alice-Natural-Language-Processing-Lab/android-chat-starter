@@ -116,7 +116,7 @@ public class MessageReceiver extends Thread {
 
                     if (fromUserID == toUserID) {
                         chatListAdapter.addChat(tMessage);
-                        chatActivity.notifyDataSetChanged();
+                        chatActivity.notifyDataSetChanged(1);
                     }
                 }
 

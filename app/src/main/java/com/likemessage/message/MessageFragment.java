@@ -1,13 +1,11 @@
 package com.likemessage.message;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -59,8 +57,6 @@ public class MessageFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        final Activity activity = this.getActivity();
-
         logger.info("_______________________________onActivityCreated");
 
         messageListView = (ListView) findViewById(R.id.messageListView);
@@ -80,17 +76,6 @@ public class MessageFragment extends Fragment {
                 toUserID = messageBean.getToUserID();
                 intent.putExtra("toUserID",toUserID);
                 startActivityForResult(intent, 1);
-            }
-        });
-
-        messageListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            public void onScrollStateChanged(AbsListView absListView, int i) {
-                    logger.info("___________________________onScrollStateChanged:{}",i);
-            }
-
-            @Override
-            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
-                logger.info("___________________________scroll:{},{},{}",new Object[]{i,i1,i2});
             }
         });
 

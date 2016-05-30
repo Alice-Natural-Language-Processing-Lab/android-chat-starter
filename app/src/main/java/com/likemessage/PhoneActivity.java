@@ -6,11 +6,11 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.common.BaseAdapter;
 import com.likemessage.contact.ContactFragment;
 import com.likemessage.message.MessageFragment;
 import com.likemessage.network.MessageReceiver;
@@ -31,9 +31,7 @@ public class PhoneActivity extends Activity {
 
         public void handleMessage(Message msg) {
 
-            if (baseAdapter != null){
-                baseAdapter.notifyDataSetChanged();
-            }
+            baseAdapter.notifyDataSetChangedSelectTop();
 
             super.handleMessage(msg);
         }

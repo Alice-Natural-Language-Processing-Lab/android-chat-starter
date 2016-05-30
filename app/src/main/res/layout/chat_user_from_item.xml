@@ -39,7 +39,7 @@
             android:layout_marginEnd="2dp"
             android:layout_toLeftOf="@id/user_reply_status"
             android:layout_toStartOf="@id/user_reply_status"
-            android:text="17:10" />
+            android:text="" />
 
         <TextView
             android:id="@id/message_text"

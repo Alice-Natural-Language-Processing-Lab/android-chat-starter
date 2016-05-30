@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -60,14 +61,19 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
         public void handleMessage(Message msg) {
 
-            chatListAdapter.notifyDataSetChanged();
-
+            if (msg.what == 1){
+                chatListAdapter.notifyDataSetChangedSelectTop();
+            }else if(msg.what == 0){
+                chatListAdapter.notifyDataSetChanged();
+            }else{
+                chatListAdapter.notifyDataSetChangedSelect(msg.what);
+            }
             super.handleMessage(msg);
         }
     };
 
-    public void notifyDataSetChanged() {
-        update.sendEmptyMessage(0);
+    public void notifyDataSetChanged(int value) {
+        update.sendEmptyMessage(value);
     }
 
     /* ---------------------------------    ------------------------------*/
@@ -149,8 +155,6 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
         AndroidUtilities.statusBarHeight = getStatusBarHeight();
 
-        chatList = loadMsg(toUserID);
-
         chatListView = (ListView) findViewById(R.id.chat_list_view);
 
         chatEditText1 = (EditText) findViewById(R.id.chat_edit_text1);
@@ -174,7 +178,9 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
             }
         });
 
-        chatListAdapter = new ChatListAdapter(getActivity(), chatListView, chatList);
+        chatListAdapter = new ChatListAdapter(this, chatListView);
+
+        chatListAdapter.getMoreMessage(toUserID);
 
         chatListAdapter.setChatUserID(toUserID);
 
@@ -207,14 +213,31 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 
         TextView chat_with = (TextView) findViewById(R.id.txt_chat_with);
 
-        chat_with.setText(" < "+contact.getBackupName());
+        chat_with.setText(" < " + contact.getBackupName());
 
-        logger.info("____________________title:{}",contact.getBackupName());
+        logger.info("____________________title:{}", contact.getBackupName());
 
-    }
+        chatListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
-    private List<T_MESSAGE> loadMsg(Integer toUserID) {
-        return DBUtil.getDbUtil().findChat(toUserID);
+            private boolean isGetMorereMessage = false;
+
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+                if (i == 1) {
+                } else if (i == 2) {
+                    isGetMorereMessage = true;
+                } else if (i == 0) {
+                    if (isGetMorereMessage){
+                        chatListAdapter.getMoreMessage(toUserID);
+                        isGetMorereMessage = false;
+                    }
+                }
+            }
+
+            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+//                logger.info("___________________________scroll:{},{},{}",new Object[]{i,i1,i2});
+            }
+        });
+
     }
 
     private void sendMessage(final String messageText, final Integer toUserID) {
@@ -232,7 +255,7 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
         message.setSend(true);
         message.setToUserID(toUserID);
         chatListAdapter.addChat(message);
-        notifyDataSetChanged();
+        notifyDataSetChanged(1);
 
         LConstants.uniqueThread.execute(new Runnable() {
             @Override
@@ -254,15 +277,15 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 //                    }
 
                     LMClient client = LConstants.client;
-                    logger.info("________________________________toUserID:{}",toUserID);
-                    logger.info("________________sendMessage,message:{}",message);
-                    logger.info("________________sendMessage,contact:{}",contact);
+                    logger.info("________________________________toUserID:{}", toUserID);
+                    logger.info("________________sendMessage,message:{}", message);
+                    logger.info("________________sendMessage,contact:{}", contact);
 
                     RESMessage resMessage = client.addMessage(LConstants.clientSession, message, contact.getUUID());
                     if (resMessage.getCode() == 0) {
                         DBUtil.getDbUtil().saveMsg(message);
-                    }else{
-                        Toast.makeText(getActivity(),resMessage.getDescription(),Toast.LENGTH_SHORT);
+                    } else {
+                        Toast.makeText(getActivity(), resMessage.getDescription(), Toast.LENGTH_SHORT);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

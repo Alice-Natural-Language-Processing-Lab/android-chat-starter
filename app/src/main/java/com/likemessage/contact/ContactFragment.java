@@ -45,14 +45,14 @@ public class ContactFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        contactList = (ListView) findViewById(R.id.contact_list);
+        contactListView = (ListView) findViewById(R.id.contact_list);
         alphabeticBar = (QuickAlphabeticBar) findViewById(R.id.fast_scroller);
 
         // 实例化
 //        asyncQueryHandler = new MyAsyncQueryHandler(getActivity().getContentResolver());
         setAdapter(LConstants.contacts);
 
-        contactList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        contactListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
@@ -72,8 +72,8 @@ public class ContactFragment extends Fragment {
 
 
     private ContactAdapter adapter;
-    private ListView contactList;
-    private List<B_Contact> list;
+    private ListView contactListView;
+    private List<B_Contact> contactList;
     //    private AsyncQueryHandler asyncQueryHandler; // 异步查询数据库类对象
     private QuickAlphabeticBar alphabeticBar; // 快速索引条
 
@@ -110,7 +110,7 @@ public class ContactFragment extends Fragment {
 //        protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
 //            if (cursor != null && cursor.getCount() > 0) {
 //                contactIdMap = new HashMap<Integer, B_Contact>();
-//                list = new ArrayList<B_Contact>();
+//                contactList = new ArrayList<B_Contact>();
 //                cursor.moveToFirst(); // 游标移动到第一项
 //                for (int i = 0; i < cursor.getCount(); i++) {
 //                    cursor.moveToPosition(i);
@@ -131,13 +131,13 @@ public class ContactFragment extends Fragment {
 //                        contact.setSortKey(sortKey);
 //                        contact.setPhotoId(photoId);
 //                        contact.setLookUpKey(lookUpKey);
-//                        list.add(contact);
+//                        contactList.add(contact);
 //
 //                        contactIdMap.put(contactId, contact);
 //                    }
 //                }
-//                if (list.size() > 0) {
-//                    setAdapter(list);
+//                if (contactList.size() > 0) {
+//                    setAdapter(contactList);
 //                }
 //            }
 //
@@ -146,10 +146,10 @@ public class ContactFragment extends Fragment {
 //
 //    }
     private void setAdapter(List<B_Contact> list) {
-        adapter = new ContactAdapter(getActivity(), list, alphabeticBar);
-        contactList.setAdapter(adapter);
+        adapter = new ContactAdapter(activity, list,contactListView, alphabeticBar);
+        contactListView.setAdapter(adapter);
         alphabeticBar.init(getActivity());
-        alphabeticBar.setListView(contactList);
+        alphabeticBar.setListView(contactListView);
         alphabeticBar.setHight(alphabeticBar.getHeight());
         alphabeticBar.setVisibility(View.VISIBLE);
     }
