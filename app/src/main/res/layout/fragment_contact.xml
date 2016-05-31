@@ -1,51 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@android:color/background_light" >
 
-    <com.likemessage.contact.SlidingLinearLayout
-        android:id="@+id/slidingview"
+
+    <RelativeLayout
+        android:background="@android:color/holo_orange_light"
+        android:layout_width="match_parent"
+        android:paddingTop="4dp"
+        android:paddingRight="4dp"
+        android:paddingBottom="4dp"
+        android:layout_height="45dp">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="添加联系人"
+            android:id="@+id/btn_add_contact"
+            android:background="@drawable/btn_add_contact"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            />
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/contact_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true" >
+        android:cacheColorHint="#000000"
+        android:divider="#00000000"
+        android:fadingEdge="none"
+        android:scrollbars="none"
+        android:scrollingCache="false"
+        android:visibility="visible" />
 
-        <ListView
-            android:id="@+id/contact_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:cacheColorHint="#000000"
-            android:divider="#00000000"
-            android:fadingEdge="none"
-            android:scrollbars="none"
-            android:scrollingCache="false"
-            android:visibility="visible" />
-    </com.likemessage.contact.SlidingLinearLayout>
-
-    <com.likemessage.contact.QuickAlphabeticBar
-        android:id="@+id/fast_scroller"
-        android:layout_width="22dp"
-        android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="top|right|center"
-        android:layout_marginTop="0dip"
-        android:background="@null"
-        android:scaleType="centerInside"
-        android:textColor="#cccccc" >
-    </com.likemessage.contact.QuickAlphabeticBar>
-
-    <TextView
-        android:id="@+id/fast_position"
-        android:layout_width="70dip"
-        android:layout_height="70dip"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center_horizontal|top"
-        android:layout_margin="34dip"
-        android:gravity="center"
-        android:padding="2dip"
-        android:background="#999999"
-        android:textColor="#CCCCCC"
-        android:textSize="48dip"
-        android:visibility="invisible" />
-
-</RelativeLayout>
+</LinearLayout>

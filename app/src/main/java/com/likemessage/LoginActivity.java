@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -19,7 +18,7 @@ import com.likemessage.client.LMClient;
 import com.likemessage.common.LConstants;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 import in.co.madhur.chatbubblesdemo.R;
@@ -80,22 +79,11 @@ public class LoginActivity extends Activity {
 
                     try {
                         List<B_Contact> contacts = client.getContactListByUserID(LConstants.clientSession);
-
-                        LConstants.contacts = contacts;
-
-                        HashMap<String, B_Contact> contactUUIDHashMap = LConstants.contactUUIDHashMap;
-                        HashMap<Integer, B_Contact> contactUserIDHashMap = LConstants.contactUserIDHashMap;
-
-                        for (int i = 0; i < contacts.size(); i++) {
-                            // 得到字母
-
-                            B_Contact contact = contacts.get(i);
-
-                            logger.info("_____________________contact:{}", JSONObject.toJSON(contact));
-                            contactUUIDHashMap.put(contact.getUUID(), contact);
-                            contactUserIDHashMap.put(contact.getUserID(), contact);
+                        if (contacts == null){
+                            contacts = new ArrayList<B_Contact>();
                         }
-
+                        LConstants.contacts = contacts;
+                        LConstants.initizlizeContact();
                     } catch (IOException e) {
                         e.printStackTrace();
                         return;

@@ -12,11 +12,14 @@ import android.widget.ListView;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.likemessage.PhoneActivity;
+import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
 import com.likemessage.network.MessageReceiver;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import in.co.madhur.chatbubblesdemo.ChatActivity;
@@ -39,11 +42,12 @@ public class MessageFragment extends Fragment {
 
     private PhoneActivity activity = null;
 
-    public MessageListAdpter getMessageListAdaptor(){
+    public MessageListAdpter getMessageListAdaptor() {
         return messageListAdaptor;
     }
 
-    public MessageFragment(){}
+    public MessageFragment() {
+    }
 
     public void setPhoneActivity(PhoneActivity activity) {
         this.activity = activity;
@@ -63,7 +67,9 @@ public class MessageFragment extends Fragment {
 
         messageList = DBUtil.getDbUtil().findTop(LConstants.THIS_USER_ID);
 
-        messageListAdaptor = new MessageListAdpter(activity,messageListView,messageList);
+        messageList = filterMessage(messageList);
+
+        messageListAdaptor = new MessageListAdpter(activity, messageListView, messageList);
 
         messageListView.setAdapter(messageListAdaptor);
 
@@ -71,10 +77,10 @@ public class MessageFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 MessageListAdpter adapter = (MessageListAdpter) adapterView.getAdapter();
                 T_MESSAGE messageBean = adapter.getItem(i);
-                Intent intent = new Intent(activity,ChatActivity.class);
-                Integer toUserID =  messageBean.isSend() ? messageBean.getToUserID() : messageBean.getFromUserID();
+                Intent intent = new Intent(activity, ChatActivity.class);
+                Integer toUserID = messageBean.isSend() ? messageBean.getToUserID() : messageBean.getFromUserID();
                 toUserID = messageBean.getToUserID();
-                intent.putExtra("toUserID",toUserID);
+                intent.putExtra("toUserID", toUserID);
                 startActivityForResult(intent, 1);
             }
         });
@@ -84,7 +90,7 @@ public class MessageFragment extends Fragment {
         MessageReceiver.getInstance().setMessageListView(messageListView);
     }
 
-    private View findViewById(int id){
+    private View findViewById(int id) {
 
         return getActivity().findViewById(id);
     }
@@ -94,7 +100,7 @@ public class MessageFragment extends Fragment {
                              Bundle savedInstanceState) {
         logger.info("______________________");
 
-        if (view == null){
+        if (view == null) {
             view = inflater.inflate(R.layout.fragment_message, container, false);
         }
 
@@ -109,6 +115,8 @@ public class MessageFragment extends Fragment {
 
         List<T_MESSAGE> messageList = DBUtil.getDbUtil().findTop(LConstants.THIS_USER_ID);
 
+        messageList = filterMessage(messageList);
+
         this.messageList.clear();
 
         this.messageList.addAll(messageList);
@@ -120,5 +128,20 @@ public class MessageFragment extends Fragment {
         logger.info("___________________________MessageFragment resume");
     }
 
+    private List<T_MESSAGE> filterMessage(List<T_MESSAGE> messageList) {
 
+        List<T_MESSAGE> ml = new ArrayList<T_MESSAGE>();
+
+        HashMap<Integer, B_Contact> contactUserIDHashMap = LConstants.contactUserIDHashMap;
+
+        for (int i = 0; i < messageList.size(); i++) {
+            T_MESSAGE m = messageList.get(i);
+            Integer userID = m.getToUserID();
+            if (!contactUserIDHashMap.containsKey(userID)) {
+                continue;
+            }
+            ml.add(m);
+        }
+        return ml;
+    }
 }

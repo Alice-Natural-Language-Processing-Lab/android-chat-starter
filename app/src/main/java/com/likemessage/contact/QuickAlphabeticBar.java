@@ -16,8 +16,6 @@ import android.widget.TextView;
 
 import java.util.HashMap;
 
-import in.co.madhur.chatbubblesdemo.R;
-
 /**
  * Created by wangkai on 2016/5/22.
  */
@@ -50,7 +48,7 @@ public class QuickAlphabeticBar extends ImageButton {
 
     // 初始化
     public void init(Activity ctx) {
-        mDialogText = (TextView) ctx.findViewById(R.id.fast_position);
+//        mDialogText = (TextView) ctx.findViewById(R.id.fast_position);
         mDialogText.setVisibility(View.INVISIBLE);
         mHandler = new Handler();
     }

@@ -69,7 +69,7 @@ public class ChatListAdapter extends BaseAdapter {
             ViewHolderTimeline holderTimeline;
 
             if (convertView == null) {
-                v = LayoutInflater.from(activity).inflate(R.layout.chat_timeline_item, null, false);
+                v = LayoutInflater.from(activity).inflate(R.layout.activity_chat_item_timeline, null, false);
                 holderTimeline = new ViewHolderTimeline();
                 holderTimeline.timeline = (TextView) v.findViewById(R.id.txt_timeline);
                 v.setTag(holderTimeline);
@@ -88,7 +88,7 @@ public class ChatListAdapter extends BaseAdapter {
 
         if (message.isSend()) {
             if (convertView == null) {
-                v = LayoutInflater.from(activity).inflate(R.layout.chat_user_from_item, null, false);
+                v = LayoutInflater.from(activity).inflate(R.layout.activity_chat_item_user_from, null, false);
 
                 holder2 = new ViewHolder2();
 
@@ -114,7 +114,7 @@ public class ChatListAdapter extends BaseAdapter {
 //            }
         } else {
             if (convertView == null) {
-                v = LayoutInflater.from(activity).inflate(R.layout.chat_user_to_item, null, false);
+                v = LayoutInflater.from(activity).inflate(R.layout.activity_chat_item_user_to, null, false);
                 holder1 = new ViewHolder1();
 
 

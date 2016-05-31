@@ -1,20 +1,19 @@
 package com.likemessage.contact;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.AddContactActivity;
 import com.likemessage.PhoneActivity;
-import com.likemessage.bean.B_Contact;
 import com.likemessage.common.LConstants;
-
-import java.util.List;
 
 import in.co.madhur.chatbubblesdemo.R;
 
@@ -24,10 +23,10 @@ import in.co.madhur.chatbubblesdemo.R;
 public class ContactFragment extends Fragment {
 
     private Logger logger = LoggerFactory.getLogger(ContactFragment.class);
-
     private View view = null;
-
     private PhoneActivity activity;
+    private ContactAdapter adapter;
+    private ListView contactListView;
 
     public ContactFragment() {
     }
@@ -46,17 +45,21 @@ public class ContactFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         contactListView = (ListView) findViewById(R.id.contact_list);
-        alphabeticBar = (QuickAlphabeticBar) findViewById(R.id.fast_scroller);
 
-        // 实例化
-//        asyncQueryHandler = new MyAsyncQueryHandler(getActivity().getContentResolver());
-        setAdapter(LConstants.contacts);
+        adapter = new ContactAdapter(activity, contactListView);
+        contactListView.setAdapter(adapter);
 
-        contactListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        Button btn_add_contact = (Button) findViewById(R.id.btn_add_contact);
+
+        btn_add_contact.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onClick(View view) {
 
-                logger.info("________________setOnItemClickListener,{}", view.toString());
+                logger.info("________________add contact click");
+
+                Intent intent = new Intent(activity,AddContactActivity.class);
+                intent.putExtra("test","test");
+                startActivityForResult(intent, 1);
             }
         });
     }
@@ -70,89 +73,13 @@ public class ContactFragment extends Fragment {
         return view;
     }
 
+    public void onResume() {
 
-    private ContactAdapter adapter;
-    private ListView contactListView;
-    private List<B_Contact> contactList;
-    //    private AsyncQueryHandler asyncQueryHandler; // 异步查询数据库类对象
-    private QuickAlphabeticBar alphabeticBar; // 快速索引条
+        if (LConstants.isNeedRefreshContact){
+            LConstants.isNeedRefreshContact = false;
+            adapter.refresh();
+        }
 
-//    private Map<Integer, B_Contact> contactIdMap = null;
-
-    /**
-     * 初始化数据库查询参数
-     */
-//    private void init() {
-//        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI; // 联系人Uri；
-//        // 查询的字段
-//        String[] projection = { ContactsContract.CommonDataKinds.Phone._ID,
-//                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-//                ContactsContract.CommonDataKinds.Phone.DATA1, "sort_key",
-//                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-//                ContactsContract.CommonDataKinds.Phone.PHOTO_ID,
-//                ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY };
-//        // 按照sort_key升序查詢
-//        asyncQueryHandler.startQuery(0, null, uri, projection, null, null,
-//                "sort_key COLLATE LOCALIZED asc");
-//
-//    }
-
-    /**
-     * @author Administrator
-     */
-//    private class MyAsyncQueryHandler extends AsyncQueryHandler {
-//
-//        public MyAsyncQueryHandler(ContentResolver cr) {
-//            super(cr);
-//        }
-//
-//        @Override
-//        protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-//            if (cursor != null && cursor.getCount() > 0) {
-//                contactIdMap = new HashMap<Integer, B_Contact>();
-//                contactList = new ArrayList<B_Contact>();
-//                cursor.moveToFirst(); // 游标移动到第一项
-//                for (int i = 0; i < cursor.getCount(); i++) {
-//                    cursor.moveToPosition(i);
-//                    String name = cursor.getString(1);
-//                    String number = cursor.getString(2);
-//                    String sortKey = cursor.getString(3);
-//                    int contactId = cursor.getInt(4);
-//                    Long photoId = cursor.getLong(5);
-//                    String lookUpKey = cursor.getString(6);
-//
-//                    if (contactIdMap.containsKey(contactId)) {
-//                        // 无操作
-//                    } else {
-//                        // 创建联系人对象
-//                        B_Contact contact = new B_Contact();
-//                        contact.setDisplayName(name);
-//                        contact.setPhoneNum(number);
-//                        contact.setSortKey(sortKey);
-//                        contact.setPhotoId(photoId);
-//                        contact.setLookUpKey(lookUpKey);
-//                        contactList.add(contact);
-//
-//                        contactIdMap.put(contactId, contact);
-//                    }
-//                }
-//                if (contactList.size() > 0) {
-//                    setAdapter(contactList);
-//                }
-//            }
-//
-//            super.onQueryComplete(token, cookie, cursor);
-//        }
-//
-//    }
-    private void setAdapter(List<B_Contact> list) {
-        adapter = new ContactAdapter(activity, list,contactListView, alphabeticBar);
-        contactListView.setAdapter(adapter);
-        alphabeticBar.init(getActivity());
-        alphabeticBar.setListView(contactListView);
-        alphabeticBar.setHight(alphabeticBar.getHeight());
-        alphabeticBar.setVisibility(View.VISIBLE);
+        super.onResume();
     }
-
-
 }

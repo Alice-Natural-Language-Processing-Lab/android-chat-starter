@@ -1,92 +1,109 @@
-<in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/chat_layout"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@drawable/background"
-    tools:context=".ChatActivity">
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_alignParentTop="true"
-        android:layout_height="26dp"
-        android:background="@android:color/holo_orange_light" >
+    android:background="@android:color/background_light"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_orange_light"
+        android:paddingBottom="4dp"
+        android:paddingRight="4dp"
+        android:paddingTop="4dp">
+
         <TextView
+            android:id="@+id/txt_chat_with"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="与TA的聊天"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </RelativeLayout>
+
+    <in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout
+        android:id="@+id/chat_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background">
+
+        <ListView
+            android:id="@+id/chat_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="2dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="与TA的聊天"
-            android:id="@+id/txt_chat_with" />
-    </LinearLayout>
+            android:layout_above="@+id/bottomlayout"
+            android:divider="@drawable/chat_divider"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:scrollbarStyle="outsideOverlay"></ListView>
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/holo_orange_dark" >
-    </LinearLayout>
-
-    <ListView
-        android:id="@+id/chat_list_view"
-        android:paddingTop="26dp"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:divider="@drawable/chat_divider"
-        android:layout_width="match_parent"
-        android:scrollbarStyle="outsideOverlay"
-        android:layout_above="@+id/bottomlayout"
-        android:layout_height="match_parent"></ListView>
-
-    <LinearLayout
-        android:id="@+id/bottomlayout"
-        android:background="@android:color/white"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_height="wrap_content">
-
-        <RelativeLayout
+        <LinearLayout
+            android:id="@+id/bottomlayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/white"
+            android:orientation="vertical">
 
-            <ImageView android:src="@drawable/ic_msg_panel_smiles" android:layout_alignParentLeft="true" android:layout_alignParentStart="true" android:layout_marginLeft="8dp" android:layout_marginRight="8dp"
-                android:layout_width="wrap_content" android:id="@+id/emojiButton" android:layout_alignBottom="@+id/chat_edit_text1" android:layout_marginBottom="8dp"
-                android:layout_height="wrap_content" />
-
-            <EditText
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:id="@+id/chat_edit_text1"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollHorizontally="false"
-                android:layout_toLeftOf="@+id/enter_chat1"
-                android:layout_toRightOf="@id/emojiButton"
-                android:layout_toEndOf="@id/emojiButton"
-                android:layout_toStartOf="@+id/enter_chat1"
-                android:hint="@string/type_your_message"
-                android:maxLines="4"
-                android:singleLine="false"
-                android:inputType="textCapSentences"
+                android:layout_height="wrap_content">
 
-                android:textSize="18sp"
-                android:paddingLeft="4dp" />
+                <ImageView
+                    android:id="@+id/emojiButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/chat_edit_text1"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:src="@drawable/ic_msg_panel_smiles" />
 
-            <ImageView android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:id="@+id/enter_chat1"
-                android:layout_width="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@id/chat_edit_text1"
-                android:paddingLeft="13dp"
-                android:paddingStart="13dp"
-                android:paddingRight="17dp"
-                android:paddingEnd="17dp"
-                android:src="@drawable/ic_chat_send" />
+                <EditText
+                    android:id="@+id/chat_edit_text1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_toEndOf="@id/emojiButton"
+                    android:layout_toLeftOf="@+id/enter_chat1"
+                    android:layout_toRightOf="@id/emojiButton"
+                    android:layout_toStartOf="@+id/enter_chat1"
+                    android:hint="@string/type_your_message"
+                    android:inputType="textCapSentences"
+                    android:maxLines="4"
+                    android:paddingLeft="4dp"
+                    android:scrollHorizontally="false"
 
-        </RelativeLayout>
+                    android:singleLine="false"
+                    android:textSize="18sp" />
 
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/enter_chat1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/chat_edit_text1"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="8dp"
+                    android:paddingEnd="17dp"
+                    android:paddingLeft="13dp"
+                    android:paddingRight="17dp"
+                    android:paddingStart="13dp"
+                    android:src="@drawable/ic_chat_send" />
 
-</in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout>
+
+</LinearLayout>
+
+
+
+
+
+

@@ -2,6 +2,7 @@ package com.likemessage.common;
 
 import android.content.Context;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.ClientTCPConnector;
@@ -16,6 +17,8 @@ import com.likemessage.client.LMClient;
 import com.likemessage.database.DBUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,11 +40,15 @@ public class LConstants {
 
     public static LMClient client = new LMClient();
 
-    public static HashMap<String,B_Contact> contactUUIDHashMap = new HashMap<String, B_Contact>();
+    public static HashMap<String, B_Contact> contactUUIDHashMap = new HashMap<String, B_Contact>();
 
-    public static HashMap<Integer,B_Contact> contactUserIDHashMap = new HashMap<Integer, B_Contact>();
+    public static HashMap<Integer, B_Contact> contactUserIDHashMap = new HashMap<Integer, B_Contact>();
 
     public static List<B_Contact> contacts = new ArrayList<B_Contact>();
+
+    public static List<B_Contact> fixdContacts = new ArrayList<B_Contact>();
+
+    public static boolean isNeedRefreshContact = false;
 
     public static ClientTCPConnector connector = null;
 
@@ -102,12 +109,45 @@ public class LConstants {
         }
     }
 
-    public static B_Contact getBContactByUUID(String uuid){
+    public static B_Contact getBContactByUUID(String uuid) {
         return contactUUIDHashMap.get(uuid);
     }
 
-    public static B_Contact getBContactByUserID(Integer userID){
+    public static B_Contact getBContactByUserID(Integer userID) {
         return contactUserIDHashMap.get(userID);
     }
 
+    public static void initizlizeContact() {
+        List<B_Contact> contacts = LConstants.contacts;
+        Collections.sort(contacts, new Comparator<B_Contact>() {
+            public int compare(B_Contact b_contact, B_Contact t1) {
+                String p1 = b_contact.getPinyin();
+                String p2 = t1.getPinyin();
+                return p1.compareTo(p2);
+            }
+        });
+
+        List<B_Contact> contactList = new ArrayList<B_Contact>();
+        char lastChar = 0;
+        HashMap<String, B_Contact> contactUUIDHashMap = LConstants.contactUUIDHashMap;
+        HashMap<Integer, B_Contact> contactUserIDHashMap = LConstants.contactUserIDHashMap;
+
+        for (int i = 0; i < contacts.size(); i++) {
+            B_Contact contact = contacts.get(i);
+            logger.info("_____________________contact:{}", JSONObject.toJSON(contact));
+            contactUUIDHashMap.put(contact.getUUID(), contact);
+            contactUserIDHashMap.put(contact.getUserID(), contact);
+            String p = contact.getPinyin();
+            char c = p.charAt(0);
+            if (c > lastChar){
+                lastChar = c;
+                B_Contact contact1 = new B_Contact();
+                contact1.setPinyin(String.valueOf(lastChar));
+                contact1.setUserID(-1);
+                contactList.add(contact1);
+            }
+            contactList.add(contact);
+        }
+        fixdContacts = contactList;
+    }
 }
