@@ -59,8 +59,8 @@ public class MessageListAdpter extends BaseAdapter {
 			holder = new MessageHolder();
 			convertView = inflater.inflate(R.layout.fragment_message_item, parent, false);
 			convertView.setTag(holder);
-			holder.name = (TextView) convertView.findViewById(R.id.name);
-			holder.message = (TextView) convertView.findViewById(R.id.message);
+			holder.txt_message_user = (TextView) convertView.findViewById(R.id.txt_message_user);
+			holder.txt_message_text = (TextView) convertView.findViewById(R.id.txt_message_text);
 		} else {
 			holder = (MessageHolder) convertView.getTag();
 		}
@@ -77,8 +77,8 @@ public class MessageListAdpter extends BaseAdapter {
 
 		logger.info("_____________________contact:{}",contact);
 
-		holder.name.setText(contact.getBackupName());
-		holder.message.setText(message.getMessage());
+		holder.txt_message_user.setText(contact.getBackupName());
+		holder.txt_message_text.setText(message.getMessage());
 
 		return convertView;
 	}
@@ -89,8 +89,8 @@ public class MessageListAdpter extends BaseAdapter {
 	}
 
 	protected static class MessageHolder {
-		private TextView name;
-		private TextView message;
+		private TextView txt_message_user;
+		private TextView txt_message_text;
 	}
 
 	public ListView getListView() {
