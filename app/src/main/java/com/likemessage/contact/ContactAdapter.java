@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.CallActivity;
 import com.likemessage.PhoneActivity;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.common.BaseAdapter;
@@ -130,15 +131,28 @@ public class ContactAdapter extends BaseAdapter {
             }
         });
 
-        holder.startMessageChat.setTag(holder);
-
         holder.startPhoneCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                logger.info("__________________________________phone call:{}", view);
+                ViewHolder holder1 = (ViewHolder) view.getTag();
+
+                logger.info("___________________v:{}", view);
+                logger.info("____________________tag:{}", holder1);
+
+                Integer toUserID = holder1.userID;
+
+                logger.info("__________________________________toUserID:{}", toUserID);
+
+                Intent intent = new Intent(activity, CallActivity.class);
+                intent.putExtra("toUserID", toUserID);
+                activity.startActivityForResult(intent, 1);
+
+                logger.info("__________________________________message chat:{}", view);
             }
         });
 
+        holder.startMessageChat.setTag(holder);
+        holder.startPhoneCall.setTag(holder);
 
         return convertView;
     }
