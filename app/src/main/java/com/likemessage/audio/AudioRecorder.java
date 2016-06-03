@@ -8,20 +8,24 @@ import com.gifisan.nio.common.LoggerFactory;
 /**
  * Created by wangkai on 2016/6/1.
  */
-public class AudioRecorder extends Audio implements Runnable {
+public class AudioRecorder extends Audio {
 
-    private boolean isRecording = false;
     private AudioRecord audioRecord;
     private Logger logger = LoggerFactory.getLogger(AudioRecorder.class);
-    private OnRecord onRecord = null;
+    private final int BUFFER_FRAME_SIZE = 960;
+    private byte[] SAMPLE_ARRAY = new byte[BUFFER_FRAME_SIZE];
+    private static AudioRecorder recorder = null;
 
-    public void setOnRecord(OnRecord onRecord){
-        this.onRecord = onRecord;
+    public static AudioRecorder getInstance() {
+        if (recorder == null) {
+            recorder = new AudioRecorder();
+            recorder.initialize();
+        }
+        return recorder;
     }
 
-    // 开始录制
+    //初始化
     private void initialize() {
-
         int audioBufSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG,
                 AUDIO_FORMAT);
         if (audioBufSize == AudioRecord.ERROR_BAD_VALUE) {
@@ -33,33 +37,34 @@ public class AudioRecorder extends Audio implements Runnable {
             audioRecord = new AudioRecord(AUDIO_SOURCE, SAMPLE_RATE,
                     CHANNEL_CONFIG, AUDIO_FORMAT, audioBufSize);
         }
+
+        logger.debug("____________________________________________audioRecord initialize()");
+    }
+
+    // 开始录制
+    public void startRecording(){
+        audioRecord.startRecording();
     }
 
     // 停止录制
     public void stopRecording() {
-        this.isRecording = false;
-    }
 
-    public void run() {
-        // 录制前，先启动解码器
-        this.initialize();
-        logger.debug("____________________________________________audioRecord initialize()");
-        audioRecord.startRecording();
-        this.isRecording = true;
-        byte[] SAMPLE_ARRAY = new byte[BUFFER_FRAME_SIZE];
-        for (;isRecording;) {
-            int bufferRead = audioRecord.read(SAMPLE_ARRAY, 0, BUFFER_FRAME_SIZE);
-            if (bufferRead > 0) {
-                logger.debug("_________________________,{}", bufferRead);
-                this.onRecord.onRecord(SAMPLE_ARRAY,bufferRead);
-            }
-        }
         logger.info("__________________录制结束");
         audioRecord.stop();
         audioRecord.release();
     }
 
-    public interface OnRecord{
-        public abstract  void onRecord(byte [] array,int length);
+    /**
+     * 返回单例Array数组，请勿多线程操作该数组
+     * @return
+     */
+    public byte [] read() {
+        int bufferRead = audioRecord.read(SAMPLE_ARRAY, 0, BUFFER_FRAME_SIZE);
+        if (bufferRead > 0) {
+            logger.debug("_________________________,{}", bufferRead);
+            //这里直接return SAMPLE_ARRAY不好，注意点应该没问题
+            return SAMPLE_ARRAY;
+        }
+        return null;
     }
 }

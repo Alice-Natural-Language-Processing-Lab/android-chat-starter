@@ -20,6 +20,7 @@ public class AudioPlayer extends Audio {
     public static AudioPlayer getInstance() {
         if (player == null) {
             player = new AudioPlayer();
+            player.initAudioTrack();
         }
         return player;
     }
@@ -34,12 +35,15 @@ public class AudioPlayer extends Audio {
                 CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize, AudioTrack.MODE_STREAM);
         // set volume:设置播放音量
         audioTrack.setStereoVolume(1.0f, 1.0f);
-        audioTrack.play();
         return true;
     }
 
     public void write(byte[] array, int length) {
         audioTrack.write(array, 0, length);
+    }
+
+    public void startPlaying(){
+        this.audioTrack.play();
     }
 
     public void stopPlaying() {

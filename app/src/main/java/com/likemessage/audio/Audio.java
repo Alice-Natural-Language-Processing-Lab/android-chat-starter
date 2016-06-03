@@ -8,9 +8,9 @@ import android.media.MediaRecorder;
  */
 public class Audio {
 
-    public static final int AUDIO_SOURCE = MediaRecorder.AudioSource.MIC;
-    public static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
-    public static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-    public static final int SAMPLE_RATE = 8000;
-    public static final int BUFFER_FRAME_SIZE =1024;
+    public final int AUDIO_SOURCE = MediaRecorder.AudioSource.MIC;
+    public final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
+    public final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
+    public final int SAMPLE_RATE = 8000;
+
 }
