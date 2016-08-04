@@ -6,10 +6,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.plugin.jms.JMSException;
-import com.gifisan.nio.plugin.jms.MapMessage;
-import com.gifisan.nio.plugin.jms.client.impl.FixedMessageConsumer;
-import com.gifisan.nio.plugin.jms.client.impl.OnMappedMessage;
+import com.gifisan.nio.extend.plugin.jms.MQException;
+import com.gifisan.nio.extend.plugin.jms.MapMessage;
+import com.gifisan.nio.extend.plugin.jms.client.impl.FixedMessageConsumer;
+import com.gifisan.nio.extend.plugin.jms.client.impl.OnMappedMessage;
+import com.likemessage.BaseActivity;
 import com.likemessage.PhoneActivity;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_MESSAGE;
@@ -79,13 +80,16 @@ public class MessageReceiver extends Thread {
 
     public void run() {
         logger.info("========================start init receiver");
-        for (; !LConstants.initComplete; ) {
+
+        ConnectorManager manager = LConstants.getConnectorManager();
+
+        for (; !manager.isConnected(); ) {
             ThreadUtil.sleep(500);
         }
 
         logger.info("========================init complete");
 
-        FixedMessageConsumer messageConsumer = LConstants.messageConsumer;
+        FixedMessageConsumer messageConsumer = manager.MESSAGE_CONSUMER;
 
         messageConsumer.listen("lMessage", new OnMappedMessage() {
             public void onReceive(MapMessage message) {
@@ -116,13 +120,17 @@ public class MessageReceiver extends Thread {
 
                     if (fromUserID == toUserID) {
                         chatListAdapter.addChat(tMessage);
-                        chatActivity.notifyDataSetChanged(1);
+
+                        BaseActivity.sendMessage(new BaseActivity.MessageHandle() {
+                            @Override
+                            public void handle(BaseActivity activity) {
+                                chatListAdapter.notifyDataSetChangedSelectTop();
+                            }
+                        });
                     }
                 }
 
                 if (messageListAdpter != null) {
-
-
 
                     //phoneActivity.notifyDataSetChanged();
                     //TODO add to messageList
@@ -134,7 +142,7 @@ public class MessageReceiver extends Thread {
 
         try {
             messageConsumer.receive(null);
-        } catch (JMSException e) {
+        } catch (MQException e) {
             e.printStackTrace();
         }
 

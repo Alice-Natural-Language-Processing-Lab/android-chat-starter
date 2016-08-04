@@ -11,6 +11,7 @@ import android.widget.ListView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.BaseActivity;
 import com.likemessage.PhoneActivity;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_MESSAGE;
@@ -121,9 +122,15 @@ public class MessageFragment extends Fragment {
 
         this.messageList.addAll(messageList);
 
-        this.activity.setBaseAdapter(messageListAdaptor);
+        BaseActivity.sendMessage(new BaseActivity.MessageHandle() {
+            @Override
+            public void handle(BaseActivity activity) {
 
-        this.activity.notifyDataSetChanged();
+                messageListAdaptor.notifyDataSetChanged();
+
+                logger.info("___________________________message handle execute");
+            }
+        });
 
         logger.info("___________________________MessageFragment resume");
     }

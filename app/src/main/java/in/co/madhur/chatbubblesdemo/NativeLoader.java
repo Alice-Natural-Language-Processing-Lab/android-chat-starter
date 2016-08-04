@@ -16,12 +16,9 @@ import java.util.zip.ZipFile;
 
 public class NativeLoader {
 
-    private final static int LIB_VERSION = 4;
-    private final static String LIB_NAME = "chat." + LIB_VERSION;
-    private final static String LIB_SO_NAME = "lib" + LIB_NAME + ".so";
-    private final static String LOCALE_LIB_SO_NAME = "lib" + LIB_NAME + "loc.so";
-
-    private static volatile boolean nativeLoaded = false;
+    private static String LIB_NAME = "libaudiowrapper";
+    private static String LIB_SO_NAME = LIB_NAME + ".so";
+    private static String LOCALE_LIB_SO_NAME = LIB_NAME + "loc.so";
 
     private static File getNativeLibraryDir(Context context) {
         File f = null;
@@ -77,7 +74,6 @@ public class NativeLoader {
 
             try {
                 System.load(destLocalFile.getAbsolutePath());
-                nativeLoaded = true;
             } catch (Error e) {
                 Log.e(Constants.TAG, e.getMessage());
             }
@@ -103,11 +99,10 @@ public class NativeLoader {
         return false;
     }
 
-    public static synchronized void initNativeLibs(Context context) {
-        if (nativeLoaded) {
-            return;
-        }
-
+    public static synchronized void initNativeLibs(Context context,String libename) {
+        LIB_NAME = libename;
+        LIB_SO_NAME = LIB_NAME + ".so";
+        LOCALE_LIB_SO_NAME = LIB_NAME + "loc.so";
         try {
             String folder = null;
 
@@ -142,7 +137,6 @@ public class NativeLoader {
                 if (destFile.exists()) {
                     try {
                         System.loadLibrary(LIB_NAME);
-                        nativeLoaded = true;
                         return;
                     } catch (Error e) {
                         Log.e(Constants.TAG, e.getMessage());
@@ -157,7 +151,6 @@ public class NativeLoader {
             if (destLocalFile != null && destLocalFile.exists()) {
                 try {
                     System.load(destLocalFile.getAbsolutePath());
-                    nativeLoaded = true;
                     return;
                 } catch (Error e) {
                     Log.e(Constants.TAG, e.getMessage());
@@ -185,7 +178,6 @@ public class NativeLoader {
 
         try {
             System.loadLibrary(LIB_NAME);
-            nativeLoaded = true;
         } catch (Error e) {
             Log.e(Constants.TAG, e.getMessage());
         }

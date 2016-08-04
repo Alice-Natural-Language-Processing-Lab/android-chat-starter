@@ -19,7 +19,8 @@ public class App extends Application {
 
         applicationHandler = new Handler(getInstance().getMainLooper());
 
-        NativeLoader.initNativeLibs(App.getInstance());
+        NativeLoader.initNativeLibs(App.getInstance(),"libchat.4");
+        NativeLoader.initNativeLibs(App.getInstance(),"libaudiowrapper");
 
     }
 

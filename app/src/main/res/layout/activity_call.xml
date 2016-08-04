@@ -31,8 +31,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_weight="1"
+                android:layout_weight="0.5"
+                android:drawableLeft="@android:drawable/sym_action_call"
+                android:backgroundTintMode="src_atop"
                 android:text="拨打电话" />
+
+            <Button
+                android:id="@+id/btn_break_call"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="0.5"
+                android:drawableLeft="@android:drawable/sym_action_call"
+                android:backgroundTintMode="src_atop"
+                android:text="挂断电话" />
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

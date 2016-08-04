@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.BaseActivity;
 import com.likemessage.CallActivity;
 import com.likemessage.PhoneActivity;
 import com.likemessage.bean.B_Contact;
@@ -73,7 +74,7 @@ public class ContactAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        B_Contact contact = contactList.get(position);
+        final B_Contact contact = contactList.get(position);
 
         if (contact.getUserID() == -1){
             ViewHoldAlpha holder;
@@ -144,7 +145,8 @@ public class ContactAdapter extends BaseAdapter {
                 logger.info("__________________________________toUserID:{}", toUserID);
 
                 Intent intent = new Intent(activity, CallActivity.class);
-                intent.putExtra("toUserID", toUserID);
+                intent.putExtra("isCall",true);
+                intent.putExtra("uuid",contact.getUUID());
                 activity.startActivityForResult(intent, 1);
 
                 logger.info("__________________________________message chat:{}", view);
@@ -177,7 +179,14 @@ public class ContactAdapter extends BaseAdapter {
     public void refresh(){
         LConstants.initizlizeContact();
         this.contactList = LConstants.fixdContacts;
-        activity.notifyDataSetChanged();
+
+        BaseActivity.sendMessage(new BaseActivity.MessageHandle() {
+            @Override
+            public void handle(BaseActivity activity) {
+                notifyDataSetChangedSelectTop();
+                logger.info("___________________________message handle execute");
+            }
+        });
     }
 }
 

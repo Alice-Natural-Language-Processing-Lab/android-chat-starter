@@ -8,14 +8,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.RESMessage;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_USER;
 import com.likemessage.client.LMClient;
 import com.likemessage.common.LConstants;
+import com.likemessage.network.ConnectorManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +26,7 @@ import java.util.List;
 
 import in.co.madhur.chatbubblesdemo.R;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends BaseActivity {
 
     private Logger logger = LoggerFactory.getLogger(LoginActivity.class);
 
@@ -32,10 +35,14 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        ClientTCPConnector connector = LConstants.connector;
+        ConnectorManager manager = LConstants.getConnectorManager();
+
+        TCPConnector connector = manager.getTCPConnector();
         final Activity activity = this;
 
-        if (connector != null && connector.isLogined()){
+        FixedSession session = manager.getFixedIOSession();
+
+        if (connector != null && session.isLogined()){
                 jump(activity);
                 return;
         }
@@ -66,19 +73,27 @@ public class LoginActivity extends Activity {
                     return;
                 }
 
-                ClientTCPConnector connector = LConstants.connector;
+                ConnectorManager manager = LConstants.getConnectorManager();
 
-                if (connector.login(username, password)) {
-                    T_USER user = (T_USER) connector.getClientSession().getAuthority();
+                FixedSession session = manager.getFixedIOSession();
+
+                logger.info("login : {},{}",username,password);
+
+                RESMessage resMessage = session.login4RES(username,password);
+
+                logger.info(resMessage.toString());
+
+                if (resMessage.getCode() == 0) {
+                    T_USER user = (T_USER) session.getAuthority();
 
                     LConstants.THIS_USER_ID = user.getUserID();
                     LConstants.THIS_USER_NAME = user.getUsername();
                     LConstants.THIS_NICK_NAME = user.getNickname();
 
-                    LMClient client = LConstants.client;
+                    LMClient client = LConstants.LM_CLIENT;
 
                     try {
-                        List<B_Contact> contacts = client.getContactListByUserID(LConstants.clientSession);
+                        List<B_Contact> contacts = client.getContactListByUserID(session);
                         if (contacts == null){
                             contacts = new ArrayList<B_Contact>();
                         }
@@ -87,6 +102,13 @@ public class LoginActivity extends Activity {
                     } catch (IOException e) {
                         e.printStackTrace();
                         return;
+                    }
+
+                    try {
+//                        manager.RTP_CLIENT.bindTCPSession();
+//                        manager.RTP_CLIENT.setRTPHandle(new CallHandle());
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
 
                     jump(activity);

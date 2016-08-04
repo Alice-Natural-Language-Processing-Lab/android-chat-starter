@@ -17,17 +17,17 @@ import in.co.madhur.chatbubblesdemo.R;
 /**
  * Created by wangkai on 2016/5/21.
  */
-//public class MCOnClickListener implements View.OnClickListener{
-public class MCOnClickListener implements View.OnClickListener {
+//public class PhoneClickListener implements View.OnClickListener{
+public class PhoneClickListener implements View.OnClickListener {
 
     private Context mContext;
     private FragmentManager manager;
     private MessageFragment messageFragment;
     private ContactFragment contactFragment;
-    private Logger logger = LoggerFactory.getLogger(MCOnClickListener.class);
+    private Logger logger = LoggerFactory.getLogger(PhoneClickListener.class);
     private Fragment from = null;
 
-    public MCOnClickListener(Context context,MessageFragment messageFragment,ContactFragment contactFragment) {
+    public PhoneClickListener(Context context, MessageFragment messageFragment, ContactFragment contactFragment) {
         this.mContext = context;
         this.messageFragment = messageFragment;
         this.contactFragment = contactFragment;

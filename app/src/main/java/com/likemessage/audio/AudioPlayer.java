@@ -17,6 +17,8 @@ public class AudioPlayer extends Audio {
     private Logger logger = LoggerFactory.getLogger(AudioPlayer.class);
     // 注意：参数配置
 
+    private AudioPlayer(){}
+
     public static AudioPlayer getInstance() {
         if (player == null) {
             player = new AudioPlayer();

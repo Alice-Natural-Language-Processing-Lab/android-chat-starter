@@ -1,6 +1,5 @@
 package com.likemessage;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -13,19 +12,20 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.PinyinUtil;
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.extend.RESMessage;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 import com.likemessage.bean.T_USER;
 import com.likemessage.client.LMClient;
 import com.likemessage.common.LConstants;
+import com.likemessage.network.ConnectorManager;
 
 import java.io.IOException;
 import java.util.Map;
 
 import in.co.madhur.chatbubblesdemo.R;
 
-public class AddContactActivity extends Activity {
+public class AddContactActivity extends BaseActivity {
 
     private Logger logger = LoggerFactory.getLogger(AddContactActivity.class);
 
@@ -58,15 +58,17 @@ public class AddContactActivity extends Activity {
                     return;
                 }
 
-                LMClient client = LConstants.client;
+                LMClient client = LConstants.LM_CLIENT;
 
                 T_CONTACT contact = new T_CONTACT();
 
                 contact.setBackupName(backupName);
                 contact.setPinyin(PinyinUtil.toPinyin(backupName));
 
+                ConnectorManager manager = LConstants.getConnectorManager();
+
                 try {
-                    RESMessage resMessage = client.addContact(LConstants.clientSession,contact,username);
+                    RESMessage resMessage = client.addContact(manager.getFixedIOSession(),contact,username);
                     String alert = resMessage.getDescription();
                     if (resMessage.getCode() == 0){
                         alert = "添加成功";

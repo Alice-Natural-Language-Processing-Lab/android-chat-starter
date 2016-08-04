@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.likemessage.CallActivity"
+            android:name="com.likemessage.LoginActivity"
             android:label="LikeMessage"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -26,7 +26,7 @@
         </activity>
         <activity android:name="com.likemessage.PhoneActivity" />
         <activity android:name="com.likemessage.AddContactActivity" />
-        <activity android:name="com.likemessage.LoginActivity" />
+        <activity android:name="com.likemessage.CallActivity" />
         <activity android:name="in.co.madhur.chatbubblesdemo.ChatActivity" />
     </application>
 

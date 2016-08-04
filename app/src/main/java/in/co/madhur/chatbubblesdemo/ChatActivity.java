@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -24,12 +22,15 @@ import android.widget.Toast;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.extend.RESMessage;
+import com.likemessage.BaseActivity;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.client.LMClient;
 import com.likemessage.common.LConstants;
 import com.likemessage.database.DBUtil;
+import com.likemessage.network.ConnectorManager;
 import com.likemessage.network.MessageReceiver;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ import in.co.madhur.chatbubblesdemo.widgets.EmojiView;
 import in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout;
 
 
-public class ChatActivity extends Activity implements SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
+public class ChatActivity extends BaseActivity implements SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
 
     private ListView chatListView;
     private EditText chatEditText1;
@@ -57,24 +58,24 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
     private Logger logger = LoggerFactory.getLogger(ChatActivity.class);
     private Integer toUserID = null;
 
-    private Handler update = new Handler() {
-
-        public void handleMessage(Message msg) {
-
-            if (msg.what == 1){
-                chatListAdapter.notifyDataSetChangedSelectTop();
-            }else if(msg.what == 0){
-                chatListAdapter.notifyDataSetChanged();
-            }else{
-                chatListAdapter.notifyDataSetChangedSelect(msg.what);
-            }
-            super.handleMessage(msg);
-        }
-    };
-
-    public void notifyDataSetChanged(int value) {
-        update.sendEmptyMessage(value);
-    }
+//    private Handler update = new Handler() {
+//
+//        public void handleMessage(Message msg) {
+//
+//            if (msg.what == 1){
+//                chatListAdapter.notifyDataSetChangedSelectTop();
+//            }else if(msg.what == 0){
+//                chatListAdapter.notifyDataSetChanged();
+//            }else{
+//                chatListAdapter.notifyDataSetChangedSelect(msg.what);
+//            }
+//            super.handleMessage(msg);
+//        }
+//    };
+//
+//    public void notifyDataSetChanged(int value) {
+//        update.sendEmptyMessage(value);
+//    }
 
     /* ---------------------------------    ------------------------------*/
 
@@ -255,9 +256,14 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
         message.setSend(true);
         message.setToUserID(toUserID);
         chatListAdapter.addChat(message);
-        notifyDataSetChanged(1);
+        sendMessage(new MessageHandle() {
+            @Override
+            public void handle(BaseActivity activity) {
+                chatListAdapter.notifyDataSetChangedSelectTop();
+            }
+        });
 
-        LConstants.uniqueThread.execute(new Runnable() {
+        ThreadUtil.execute(new Runnable() {
             @Override
             public void run() {
 
@@ -276,12 +282,14 @@ public class ChatActivity extends Activity implements SizeNotifierRelativeLayout
 //                        DBUtil.getDbUtil().saveMsg(message);
 //                    }
 
-                    LMClient client = LConstants.client;
+                    LMClient client = LConstants.LM_CLIENT;
                     logger.info("________________________________toUserID:{}", toUserID);
                     logger.info("________________sendMessage,message:{}", message);
                     logger.info("________________sendMessage,contact:{}", contact);
 
-                    RESMessage resMessage = client.addMessage(LConstants.clientSession, message, contact.getUUID());
+                    ConnectorManager manager = LConstants.getConnectorManager();
+
+                    RESMessage resMessage = client.addMessage(manager.getFixedIOSession(), message, contact.getUUID());
                     if (resMessage.getCode() == 0) {
                         DBUtil.getDbUtil().saveMsg(message);
                     } else {

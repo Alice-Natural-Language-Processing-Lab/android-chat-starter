@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.likemessage.BaseActivity;
 import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.common.BaseAdapter;
 import com.likemessage.database.DBUtil;
@@ -199,20 +200,23 @@ public class ChatListAdapter extends BaseAdapter {
         this.chatList.clear();
         this.chatList.addAll(ml);
 
-        if (currentIndex == pageSize){
-            this.activity.notifyDataSetChanged(1);
-        }else{
-
-            int y = currentIndex % pageSize;
-
-            if (y == 0){
-                this.activity.notifyDataSetChanged(pageSize);
-            }else if(y == 1){
-                this.activity.notifyDataSetChanged(2);
-            }else{
-                this.activity.notifyDataSetChanged(y);
+        BaseActivity.sendMessage(new BaseActivity.MessageHandle() {
+            @Override
+            public void handle(BaseActivity activity) {
+                if (currentIndex == pageSize){
+                    notifyDataSetChangedSelect(1);
+                }else{
+                    int y = currentIndex % pageSize;
+                    if (y == 0){
+                        notifyDataSetChangedSelect(pageSize);
+                    }else if(y == 1){
+                        notifyDataSetChangedSelect(2);
+                    }else{
+                        notifyDataSetChangedSelect(y);
+                    }
+                }
             }
-        }
+        });
     }
 
     @Override

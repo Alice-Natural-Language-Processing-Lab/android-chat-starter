@@ -12,9 +12,12 @@ public class AudioRecorder extends Audio {
 
     private AudioRecord audioRecord;
     private Logger logger = LoggerFactory.getLogger(AudioRecorder.class);
-    private final int BUFFER_FRAME_SIZE = 960;
-    private byte[] SAMPLE_ARRAY = new byte[BUFFER_FRAME_SIZE];
     private static AudioRecorder recorder = null;
+    private Record record = new Record();
+    public final int BUFFER_FRAME_SIZE = 960;
+    private byte[] SAMPLE_ARRAY = new byte[BUFFER_FRAME_SIZE];
+
+    private AudioRecorder (){}
 
     public static AudioRecorder getInstance() {
         if (recorder == null) {
@@ -58,13 +61,20 @@ public class AudioRecorder extends Audio {
      * 返回单例Array数组，请勿多线程操作该数组
      * @return
      */
-    public byte [] read() {
+    public Record read() {
         int bufferRead = audioRecord.read(SAMPLE_ARRAY, 0, BUFFER_FRAME_SIZE);
         if (bufferRead > 0) {
             logger.debug("_________________________,{}", bufferRead);
             //这里直接return SAMPLE_ARRAY不好，注意点应该没问题
-            return SAMPLE_ARRAY;
+            record.length = bufferRead;
+            record.array = SAMPLE_ARRAY;
+            return record;
         }
         return null;
+    }
+
+    public class Record{
+        public int length;
+        public byte [] array;
     }
 }
