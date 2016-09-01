@@ -4,8 +4,9 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+
 
 /**
  * Created by wangkai on 2016/6/1.

@@ -6,8 +6,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
 import com.likemessage.PhoneActivity;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_MESSAGE;

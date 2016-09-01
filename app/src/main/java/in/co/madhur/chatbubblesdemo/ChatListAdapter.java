@@ -7,8 +7,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
 import com.likemessage.BaseActivity;
 import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.common.BaseAdapter;
@@ -32,7 +32,7 @@ public class ChatListAdapter extends BaseAdapter {
     private Integer chatUserID = null;
     private Logger logger = LoggerFactory.getLogger(ChatListAdapter.class);
     private int currentIndex = 0;
-    private int pageSize = 15;
+    private int pageSize = 12;
     private ChatActivity activity = null;
 
     public ChatListAdapter(ChatActivity activity, ListView chatListView) {
@@ -176,7 +176,18 @@ public class ChatListAdapter extends BaseAdapter {
         this.chatList.add(chatMessage);
     }
 
+    private long next_scroll = 0;
+
     public void getMoreMessage(Integer toUserID){
+
+        long now = System.currentTimeMillis();
+
+        if(now < next_scroll){
+            return;
+        }
+
+        next_scroll = now + 1000;
+
         this.currentIndex += pageSize;
         List<T_MESSAGE> messageList = DBUtil.getDbUtil().findChat(toUserID,currentIndex,0);
         List<T_MESSAGE> ml = new ArrayList<T_MESSAGE>();
@@ -200,20 +211,24 @@ public class ChatListAdapter extends BaseAdapter {
         this.chatList.clear();
         this.chatList.addAll(ml);
 
+        logger.info("get more messages ,{}",currentIndex);
+
         BaseActivity.sendMessage(new BaseActivity.MessageHandle() {
             @Override
             public void handle(BaseActivity activity) {
                 if (currentIndex == pageSize){
-                    notifyDataSetChangedSelect(1);
+                    notifyDataSetChangedSelectTop();
                 }else{
-                    int y = currentIndex % pageSize;
-                    if (y == 0){
-                        notifyDataSetChangedSelect(pageSize);
-                    }else if(y == 1){
-                        notifyDataSetChangedSelect(2);
-                    }else{
-                        notifyDataSetChangedSelect(y);
-                    }
+                    notifyDataSetChangedSelect(0);
+//
+//                    int y = currentIndex % pageSize;
+//                    if (y == 0){
+//                        notifyDataSetChangedSelect(1);
+//                    }else if(y == 1){
+//                        notifyDataSetChangedSelect(2);
+//                    }else{
+//                        notifyDataSetChangedSelect(1);
+//                    }
                 }
             }
         });

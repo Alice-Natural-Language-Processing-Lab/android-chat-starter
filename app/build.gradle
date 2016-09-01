@@ -32,4 +32,5 @@ dependencies {
     compile 'com.google.android.gms:play-services:8.3.0'
     compile 'com.android.support:recyclerview-v7:21.0.3'
     compile files('libs/nimbleio-0.0.1-SNAPSHOT.jar')
+    compile files('libs/nimbleio-all-0.0.1-SNAPSHOT.jar')
 }

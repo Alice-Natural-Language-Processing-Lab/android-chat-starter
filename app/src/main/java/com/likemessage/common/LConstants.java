@@ -3,10 +3,10 @@ package com.likemessage.common;
 import android.content.Context;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.client.LMClient;
 import com.likemessage.database.DBUtil;
@@ -42,7 +42,7 @@ public class LConstants {
 
     public static boolean isNeedRefreshContact = false;
 
-    public static UniqueThread uniqueThread = new UniqueThread();
+    public static UniqueThread uniqueThread;
 
     private static AtomicBoolean inited = new AtomicBoolean(false);
 
@@ -59,7 +59,9 @@ public class LConstants {
 
             DBUtil.init(context);
 
-            uniqueThread.start(connectorManager,"connector-manager");
+           uniqueThread = new UniqueThread(connectorManager,"connector-manager");
+
+            uniqueThread.start();
         }
     }
 

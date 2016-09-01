@@ -20,10 +20,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.extend.RESMessage;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.extend.RESMessage;
 import com.likemessage.BaseActivity;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_MESSAGE;
@@ -44,6 +44,7 @@ import in.co.madhur.chatbubblesdemo.widgets.SizeNotifierRelativeLayout;
 
 public class ChatActivity extends BaseActivity implements SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
 
+//    private RefreshListView chatListView;
     private ListView chatListView;
     private EditText chatEditText1;
     private List<T_MESSAGE> chatList;
@@ -220,22 +221,17 @@ public class ChatActivity extends BaseActivity implements SizeNotifierRelativeLa
 
         chatListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
-            private boolean isGetMorereMessage = false;
-
-            public void onScrollStateChanged(AbsListView absListView, int i) {
-                if (i == 1) {
-                } else if (i == 2) {
-                    isGetMorereMessage = true;
-                } else if (i == 0) {
-                    if (isGetMorereMessage){
-                        chatListAdapter.getMoreMessage(toUserID);
-                        isGetMorereMessage = false;
-                    }
-                }
+           public void onScrollStateChanged(AbsListView absListView, int i) {
             }
 
             public void onScroll(AbsListView absListView, int i, int i1, int i2) {
-//                logger.info("___________________________scroll:{},{},{}",new Object[]{i,i1,i2});
+
+                logger.info("___________________________scroll:{},{},{}",new Object[]{i,i1,i2});
+
+                if(i == 0){
+                    chatListAdapter.getMoreMessage(toUserID);
+                }
+
             }
         });
 

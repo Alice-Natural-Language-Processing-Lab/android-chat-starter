@@ -5,7 +5,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 
-import com.gifisan.nio.common.StringUtil;
+import com.generallycloud.nio.common.StringUtil;
+
 
 /**
  * Created by wangkai on 2016/4/14.

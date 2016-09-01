@@ -1,24 +1,24 @@
 package com.likemessage.network;
 
-import com.gifisan.nio.Encoding;
-import com.gifisan.nio.Looper;
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.LoggerSEListener;
-import com.gifisan.nio.component.NIOContext;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.connector.UDPConnector;
-import com.gifisan.nio.extend.ConnectorCloseSEListener;
-import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.extend.SimpleIOEventHandle;
-import com.gifisan.nio.extend.configuration.ServerConfiguration;
-import com.gifisan.nio.extend.plugin.jms.client.MessageProducer;
-import com.gifisan.nio.extend.plugin.jms.client.impl.DefaultMessageProducer;
-import com.gifisan.nio.extend.plugin.jms.client.impl.FixedMessageConsumer;
-import com.gifisan.nio.extend.plugin.rtp.client.RTPClient;
+import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.Looper;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.DefaultNIOContext;
+import com.generallycloud.nio.component.LoggerSEListener;
+import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.ServerConfiguration;
+import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.UDPConnector;
+import com.generallycloud.nio.extend.ConnectorCloseSEListener;
+import com.generallycloud.nio.extend.FixedSession;
+import com.generallycloud.nio.extend.SimpleIOEventHandle;
+import com.generallycloud.nio.extend.plugin.jms.client.MessageProducer;
+import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageProducer;
+import com.generallycloud.nio.extend.plugin.jms.client.impl.FixedMessageConsumer;
+import com.generallycloud.nio.extend.plugin.rtp.client.RTPClient;
 import com.likemessage.common.PhoneInfo;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class ConnectorManager implements Looper {
         return connector.getSession();
     }
 
-    public  RTPClient RTP_CLIENT = null;
+    public RTPClient RTP_CLIENT = null;
 
     @Override
     public void loop() {

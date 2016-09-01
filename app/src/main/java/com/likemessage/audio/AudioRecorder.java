@@ -2,8 +2,9 @@ package com.likemessage.audio;
 
 import android.media.AudioRecord;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+
 
 /**
  * Created by wangkai on 2016/6/1.

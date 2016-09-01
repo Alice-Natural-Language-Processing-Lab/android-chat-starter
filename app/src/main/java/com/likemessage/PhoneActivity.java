@@ -5,8 +5,8 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
 import com.likemessage.contact.ContactFragment;
 import com.likemessage.message.MessageFragment;
 import com.likemessage.network.MessageReceiver;

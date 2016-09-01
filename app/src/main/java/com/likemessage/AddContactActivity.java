@@ -7,12 +7,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gifisan.nio.common.BeanUtil;
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.PinyinUtil;
-import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.extend.RESMessage;
+import com.generallycloud.nio.common.BeanUtil;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.PinyinUtil;
+import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.nio.extend.RESMessage;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 import com.likemessage.bean.T_USER;
