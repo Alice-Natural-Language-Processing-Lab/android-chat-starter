@@ -179,6 +179,40 @@ public class ChatListAdapter extends BaseAdapter {
     private long next_scroll = 0;
 
     public void getMoreMessage(Integer toUserID){
+        List<T_MESSAGE> messageList = DBUtil.getDbUtil().findChat(toUserID,100,0);
+        List<T_MESSAGE> ml = new ArrayList<T_MESSAGE>();
+        long lastDate = 0;
+        long dateInterval = 5 * 60 * 1000;
+        for (int i = 0; i < messageList.size(); i++) {
+
+            T_MESSAGE message = messageList.get(i);
+
+            long date = message.getMsgDate();
+
+            if (date - lastDate > dateInterval) {
+                lastDate = date;
+                T_MESSAGE m = new T_MESSAGE();
+                m.setMsgDate(lastDate);
+                m.setMsgType(9);
+                ml.add(m);
+            }
+            ml.add(message);
+        }
+        this.chatList.clear();
+        this.chatList.addAll(ml);
+
+        logger.info("get more messages ,{}",currentIndex);
+
+        BaseActivity.sendMessage(new BaseActivity.MessageHandle() {
+            @Override
+            public void handle(BaseActivity activity) {
+                notifyDataSetChangedSelectTop();
+            }
+        });
+    }
+
+
+    public void getMoreMessage1(Integer toUserID){
 
         long now = System.currentTimeMillis();
 

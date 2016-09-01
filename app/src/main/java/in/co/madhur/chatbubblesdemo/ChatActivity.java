@@ -229,7 +229,7 @@ public class ChatActivity extends BaseActivity implements SizeNotifierRelativeLa
                 logger.info("___________________________scroll:{},{},{}",new Object[]{i,i1,i2});
 
                 if(i == 0){
-                    chatListAdapter.getMoreMessage(toUserID);
+                    //chatListAdapter.getMoreMessage(toUserID);
                 }
 
             }
